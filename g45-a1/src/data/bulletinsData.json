@@ -1,3 +1,44 @@
 {
-    "Sample_Object":"For_Future_Database"
+    "bulletins": [
+        {
+            "id": 1,
+            "title": "Free Breakfast Club",
+            "category": "Events",
+            "message": "Start your week right! Free coffee and donuts will be available in the Science Lounge from 9:00 AM to 11:00 AM. First come, first served.",
+            "author": "Science Department",
+            "date": "2026-02-08"
+        },
+        {
+            "id": 2,
+            "title": "Lost Wallet Found",
+            "category": "Announcements",
+            "message": "A black leather wallet was found near the library entrance on Friday evening. Please contact the front desk with a description to claim it.",
+            "author": "Campus Security",
+            "date": "2026-01-30"
+        },
+        {
+            "id": 3,
+            "title": "Study Group for CPS 630",
+            "category": "Academics",
+            "message": "A study group for CPS 630 will meet every Wednesday at 6:00 PM in Room ENG-201. Everyone is welcome.",
+            "author": "CS Course Union",
+            "date": "2026-02-05"
+        },
+        {
+            "id": 4,
+            "title": "Gym Maintenance Notice",
+            "category": "Announcements",
+            "message": "The campus gym will be closed for maintenance this Saturday from 8:00 AM to 4:00 PM. We apologize for the inconvenience.",
+            "author": "Facilities Management",
+            "date": "2026-02-03"
+        },
+        {
+            "id": 6,
+            "title": "Career Fair This Friday",
+            "category": "Events",
+            "message": "Meet recruiters from tech, finance, and healthcare companies at the Winter Career Fair. Bring your resume and dress business casual.",
+            "author": "Career and Co-op Center",
+            "date": "2026-02-04"
+        }
+    ]
 }
