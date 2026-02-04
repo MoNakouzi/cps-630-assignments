@@ -1,12 +1,241 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/css/styles.css" rel="stylesheet">
-    <title>Main Board</title>
-</head>
-<body>
-    <h1 class="text-3xl text-red-200">Main Bulletin Board</h1>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/css/styles.css" />
+        <title>Main Board</title>
+
+        <style>
+            .masonry {
+                column-count: 1;
+                column-gap: 1rem;
+            }
+
+            @media (min-width: 640px) {
+                /* sm */
+                .masonry {
+                    column-count: 2;
+                }
+            }
+
+            @media (min-width: 1024px) {
+                /* lg */
+                .masonry {
+                    column-count: 3;
+                }
+            }
+
+            .masonry-item {
+                break-inside: avoid;
+                margin-bottom: 1rem;
+            }
+        </style>
+    </head>
+
+    <body class="text-slate-900 bg-gradient-to-b from-violet-100 to-violet-400">
+        <!-- Navbar -->
+        <header class="border-b bg-white">
+            <nav
+                class="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between"
+            >
+                <a
+                    href="/"
+                    class="flex items-center gap-2 font-bold text-lg text-slate-900 hover:text-violet-700 transition-colors ease-in-out duration-300"
+                >
+                    <span
+                        class="h-8 w-8 rounded-lg bg-gradient-to-b from-violet-300 to-violet-400"
+                    ></span>
+                    Campus Bulletin Board
+                </a>
+
+                <ul
+                    class="flex items-center gap-5 text-sm font-medium text-slate-700"
+                >
+                    <li>
+                        <a
+                            href="/"
+                            class="text-violet-500 hover:text-violet-800 hover:underline transition-colors ease-in-out duration-300"
+                            >Home</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            href="/about"
+                            class="text-violet-500 hover:text-violet-800 hover:underline transition-colors ease-in-out duration-300"
+                            >About</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            href="/add"
+                            class="rounded-lg bg-violet-500 px-3 py-2 text-white hover:bg-violet-700 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
+                        >
+                            Add Item +
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="mx-auto max-w-6xl px-4 py-8 min-h-screen pb-10">
+            <!-- Intro -->
+            <section class="mb-6">
+                <h1 class="text-3xl font-bold tracking-tight text-slate-900">
+                    Main Board
+                </h1>
+                <p class="mt-2 text-sm text-slate-700 max-w-2xl">
+                    Our campus bulletin board items! Browse through the latest
+                    announcements, events, and more.
+                </p>
+            </section>
+
+            <!-- Controls -->
+            <section
+                class="bg-white border border-violet-200 rounded-xl p-4 shadow-sm mb-6"
+            >
+                <div
+                    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                    <!-- Filter -->
+                    <div
+                        class="flex items-center gap-3 text-violet-500 font-semibold"
+                    >
+                        <label
+                            for="categorySelect"
+                            class="text-sm font-medium text-slate-700"
+                            >Category</label
+                        >
+                        <select
+                            id="categorySelect"
+                            class="rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm outline-none focus:border-violet-400"
+                        >
+                            <option value="all">All</option>
+                            <option value="Announcements">Announcements</option>
+                            <option value="Events">Events</option>
+                            <option value="Academics">Academics</option>
+                        </select>
+                    </div>
+
+                    <!-- Tip -->
+                    <p class="text-xs font-semibold text-violet-500">
+                        Tip: Click “Add Item” to post a new bulletin.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Board -->
+            <section id="bulletinGrid" class="masonry">
+                <!-- Card -->
+                <article
+                    class="masonry-item rounded-2xl border border-violet-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
+                >
+                    <div class="flex items-start justify-between gap-3">
+                        <h2
+                            class="text-base font-semibold leading-6 text-slate-900"
+                        >
+                            TITLE
+                        </h2>
+
+                        <span
+                            class="shrink-0 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 border border-blue-100"
+                        >
+                            CATEGORY
+                        </span>
+                    </div>
+
+                    <p class="mt-3 text-sm text-slate-600 leading-6">
+                        DESCRIPTION
+                    </p>
+
+                    <div
+                        class="mt-4 flex items-center justify-between text-xs text-slate-500"
+                    >
+                        <span class="font-medium text-slate-600">AUTHOR</span>
+                        <span>DATE</span>
+                    </div>
+
+                    <!-- Edit / Delete Buttons -->
+                    <div class="mt-4 flex items-center justify-start gap-3">
+                        <a
+                            href="/edit?id=ID"
+                            class="text-xs rounded-lg bg-violet-500 px-3 py-2 text-white hover:bg-violet-700 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
+                        >
+                            Edit
+                        </a>
+                        <a
+                            href="/delete?id=ID"
+                            class="text-xs rounded-lg bg-red-400 px-3 py-2 text-white hover:bg-red-600 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
+                        >
+                            Delete
+                        </a>
+                    </div>
+                </article>
+
+                <article
+                    class="masonry-item rounded-2xl border border-violet-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
+                >
+                    <div class="flex items-start justify-between gap-3">
+                        <h2
+                            class="text-base font-semibold leading-6 text-slate-900"
+                        >
+                            Another Bulletin Title
+                        </h2>
+
+                        <span
+                            class="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100"
+                        >
+                            Events
+                        </span>
+                    </div>
+
+                    <p class="mt-3 text-sm text-slate-600 leading-6">
+                        This one can be a little longer to show the masonry
+                        effect. Some items will have more text than others, so
+                        the cards will naturally stack with different heights.
+                    </p>
+
+                    <div
+                        class="mt-4 flex items-center justify-between text-xs text-slate-500"
+                    >
+                        <span class="font-medium text-slate-600"
+                            >Student Life</span
+                        >
+                        <span>2026-02-03</span>
+                    </div>
+
+                    <div class="mt-4 flex items-center justify-start gap-3">
+                        <button
+                            class="text-xs rounded-lg bg-violet-500 px-3 py-2 text-white hover:bg-violet-700 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
+                        >
+                            Edit
+                        </button>
+                        <button
+                            class="text-xs rounded-lg bg-red-400 px-3 py-2 text-white hover:bg-red-600 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Add more cards here or render dynamically -->
+            </section>
+
+            <!-- Empty state -->
+            <!--
+        <section id="emptyState" class="hidden mt-10 rounded-xl border border-dashed border-violet-300 bg-white/80 p-10 text-center">
+            <h3 class="text-sm font-semibold">No bulletins found</h3>
+            <p class="mt-1 text-sm text-violet-600">Try selecting “All” categories.</p>
+        </section>
+        --></main>
+
+        <footer class="border-t bg-white mt-10">
+            <div
+                class="mx-auto max-w-6xl px-4 py-6 text-xs text-slate-500 font-semibold text-center"
+            >
+                CPS 630 Group 45 &copy; 2026 <br />
+                Assignment 1 - Multi-page Web Application
+            </div>
+        </footer>
+    </body>
 </html>
