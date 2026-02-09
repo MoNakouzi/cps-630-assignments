@@ -1,12 +1,62 @@
- <!DOCTYPE html>
- <html lang="en">
- <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/css/styles.css" rel="stylesheet">
-    <title>Add Bulletin</title>
- </head>
- <body>
-    
- </body>
- </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="/css/styles.css" />
+   <title>Add Post</title>
+</head>
+<body class="text-blue-50">
+   <main>
+      <head>Create a Pin</head>
+      <form id="create-pin-form" action="" method="" class="">
+         <!--Left Side-->
+         <div class="float-left">
+            <!-- Photo Upload -->
+            <div>
+                  <label for="media">Upload a Photo</label>
+                  <input id="photo" name="photo" type="file" accept="image/*">
+            </div> 
+
+            <!-- Right Side-->
+            <div class="float-right">
+               <!--Title -->
+               <div>
+               <label for="title" class="" > Title</label>
+               <input id="title" name="title" type="text" placeholder="Add a title" class=""  required/>
+               </div>
+
+               <!-- Description-->
+               <div>
+                  <label for="description" class="">Description</label>
+                  <textarea id="description" name="description" rows="4" placeholder="Add a post description"
+                  class=""></textarea>
+               </div>
+
+               <!--Catagory-->
+               <div>
+                  <label for="catagory" clasName="">Catagory</label>
+                  <select id="catagory" name="catagory" class="">
+                     <option value="">Choose a Category</option>
+                     <option value="Announcements">Announcements</option>
+                     <option value="Events">Events</option>
+                     <option value="Academics">Academics</option>
+                  </select>
+               </div>
+
+               <!-- Tags -->
+               <div>
+                  <label for="tags" class="">Tags</label>
+                  <input id="tags" name="tags" type="text" placeholder="Enter tags" class="" />
+               </div>
+               
+               <div>
+
+               </div>
+            </div>
+         </div>
+      </form>
+
+   </main>
+</body>
+</html>
