@@ -75,6 +75,15 @@
       "author": "Kai",
       "tags": "",
       "date": "2026-02-13"
+    },
+    {
+      "id": 11,
+      "title": "Test Tags",
+      "catagory": "Announcements",
+      "message": "wowowow",
+      "author": "Kai",
+      "tags": "Star Pigeon",
+      "date": "2026-02-13"
     }
   ]
 }
