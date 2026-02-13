@@ -1,12 +1,153 @@
- <!DOCTYPE html>
- <html lang="en">
- <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/css/styles.css" rel="stylesheet">
-    <title>Add Bulletin</title>
- </head>
- <body>
-    
- </body>
- </html>
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/css/styles.css" />
+        <title>Add Post</title>
+    </head>
+    <body class="bg-blue-100">
+        <!-- Navbar -->
+        <header class="border-b bg-white">
+            <nav
+                class="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between"
+            >
+                <a
+                    href="/"
+                    class="flex items-center gap-2 font-bold text-lg text-slate-900 hover:text-violet-700 transition-colors ease-in-out duration-300"
+                >
+                    <span
+                        class="h-8 w-8 rounded-lg bg-gradient-to-b from-violet-300 to-violet-400"
+                    ></span>
+                    Campus Bulletin Board
+                </a>
+
+                <ul
+                    class="flex items-center gap-5 text-sm font-medium text-slate-700"
+                >
+                    <li>
+                        <a
+                            href="/"
+                            class="text-violet-500 hover:text-violet-800 hover:underline transition-colors ease-in-out duration-300"
+                            >Home</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            href="/about"
+                            class="text-violet-500 hover:text-violet-800 hover:underline transition-colors ease-in-out duration-300"
+                            >About</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            href="/add"
+                            class="rounded-lg bg-violet-500 px-3 py-2 text-white hover:bg-violet-700 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
+                        >
+                            Add Item +
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="min-h-screen flex items-center justify-center px-4 py-10">
+            <form
+                id="create-bulletin-form"
+                class="flex flex-col text-black w-full max-w-2xl mx-auto shadow-sm border border-gray-200 rounded-lg bg-white p-5 sm:p-6 gap-4"
+            >
+                <h1
+                    class="text-violet-700 text-center text-2xl sm:text-3xl font-bold py-2"
+                >
+                    Create a Bulletin
+                </h1>
+                <small
+                    >Note: All the fields with
+                    <span class="text-red-500">*</span> are required.</small
+                >
+
+                <div class="px-5 py-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <!--Title -->
+                    <div class="flex flex-col gap-1 sm:col-span-2">
+                        <label for="title" class="font-semibold">
+                            Title <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            id="title"
+                            name="title"
+                            type="text"
+                            placeholder="Add a title"
+                            class="border border-gray-400 rounded-md w-full p-2 outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400"
+                            required
+                        />
+                    </div>
+
+                    <!--Category-->
+                    <div class="flex flex-col gap-1 sm:col-span-1">
+                        <label for="category" class="font-semibold">
+                            Category <span class="text-red-500">*</span>
+                        </label>
+                        <select
+                            id="category"
+                            name="category"
+                            required
+                            class="border border-gray-400 rounded-md p-2 w-full outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400"
+                        >
+                            <option value="">Choose a Category</option>
+                            <option value="Announcements">Announcements</option>
+                            <option value="Events">Events</option>
+                            <option value="Academics">Academics</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="px-5 py-2 flex flex-col gap-1 mt-1">
+                    <label for="message" class="font-semibold"> Message </label>
+                    <textarea
+                        id="message"
+                        name="message"
+                        rows="4"
+                        placeholder="Add a post message"
+                        class="w-full border border-gray-400 rounded-md p-2 min-h-24 resize-y outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400"
+                    ></textarea>
+                </div>
+
+                <!-- Tags -->
+                <div class="px-5 py-2 flex flex-col gap-1">
+                    <label for="tags" class="font-semibold">Tags</label>
+                    <input
+                        id="tags"
+                        name="tags"
+                        type="text"
+                        placeholder="Enter tags"
+                        class="border border-gray-400 rounded-md w-full p-2 outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400"
+                    />
+                </div>
+
+                <!--Author-->
+                <div class="px-5 py-2 flex flex-col gap-1">
+                    <label for="author" class="font-semibold">
+                        Author <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        id="author"
+                        name="author"
+                        type="text"
+                        placeholder="Enter Author Name"
+                        required
+                        class="border border-gray-400 rounded-md w-full p-2 outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400"
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    class="rounded-lg bg-violet-500 px-3 py-2 text-white hover:bg-violet-700 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md mt-2 w-full sm:w-auto sm:px-4 sm:self-start mx-auto"
+                >
+                    Add Bulletin
+                </button>
+            </form>
+            <script src="/js/add.js"></script>
+        </main>
+    </body>
+</html>
