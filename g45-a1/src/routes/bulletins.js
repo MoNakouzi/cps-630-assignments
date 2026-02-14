@@ -110,25 +110,57 @@ router.post("/", (req, res) => {
 /********* Defining (CRUD) API PATCH routes ************/
 /*******************************************************/
 
+router.patch('/:id', (req, res) => {
+    const id = Number(req.params.id);
+    const data = readData();
+    const bulletins = data.bulletins || [];
+
+    const idx = bulletins.findIndex(b => Number(b.id) === id);
+    if (idx === -1) {
+        return res.status(404).json({ error: `Bulletin with ID=${id} not found` });
+    }
+
+    const existing = bulletins[idx];
+    const { title, message, category, author } = req.body;
+
+    // Validate required fields (title, category, author)
+    if (!title || !category || !author) {
+        return res.status(400).json({ error: 'Title, Category, and Author fields are required.' });
+    }
+
+    const updated = Object.assign({}, existing, {
+        title: String(title).trim(),
+        message: (message || '').trim(),
+        category: String(category).trim(),
+        author: String(author).trim(),
+        date: new Date().toISOString().split('T')[0]
+    });
+
+    bulletins[idx] = updated;
+    data.bulletins = bulletins;
+    writeData(data);
+
+    return res.status(200).json(updated);
+});
 
 /********************************************************/
 /********* Defining (CRUD) API DELETE routes ************/
 /********************************************************/
-// DELETE bulletin by id
-router.delete("/:id", (req, res) => {
-    const id = parseInt(req.params.id);
-
+router.delete('/:id', (req, res) => {
+    const id = Number(req.params.id);
     const data = readData();
-    const beforeCount = data.bulletins.length;
+    const bulletins = data.bulletins || [];
 
-    data.bulletins = data.bulletins.filter(b => Number(b.id) !== id);
-
-    if (data.bulletins.length === beforeCount) {
+    const idx = bulletins.findIndex(b => Number(b.id) === id);
+    if (idx === -1) {
         return res.status(404).json({ error: `Bulletin with ID=${id} not found` });
     }
 
+    const removed = bulletins.splice(idx, 1)[0];
+    data.bulletins = bulletins;
     writeData(data);
-    return res.status(200).json({ message: "Deleted", id });
+
+    return res.status(200).json({ success: true, removed });
 });
 
 module.exports = router;
