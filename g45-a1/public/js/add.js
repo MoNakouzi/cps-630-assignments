@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!form) return;
 
     form.addEventListener("submit", async (e) => {
-
         e.preventDefault();
 
         const formData = new FormData(form);
@@ -17,13 +16,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify(payload),
             });
 
-            const data = await res.json().catch(() => ({}));
+            let data = {};
+            try {
+                data = await res.json();
+            } catch {
+                data = {};
+            }
 
             if (!res.ok) {
                 alert(data.error || "Failed to save bulletin");
                 return;
             }
-
+            
+            alert("Bulletin added successfully!")
             window.location.href = "/";
         } catch (err) {
             console.error(err);

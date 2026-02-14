@@ -7,43 +7,59 @@
 let allBulletins = [];
 
 // Load all bulletins on page load
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
     loadBulletins();
 
     // Filter by category
     const categorySelect = document.getElementById("categorySelect");
 
-    categorySelect.addEventListener("change", function () {
-        const selectedCategory = this.value;
+    if (categorySelect) {
+        categorySelect.addEventListener("change", function () {
+            const selectedCategory = this.value;
 
-        if (selectedCategory === "all") {
-            displayBulletins(allBulletins, 'bulletinGrid', 'emptyState');
-        } else {
-            const filtered = allBulletins.filter(b =>
-                b.category.toLowerCase() === selectedCategory.toLowerCase()
-            );
-            displayBulletins(filtered, 'bulletinGrid', 'emptyState');
-        }
-    });
+            if (selectedCategory === "all") {
+                displayBulletins(allBulletins, "bulletinGrid", "emptyState");
+            } else {
+                const filtered = allBulletins.filter(
+                    (b) =>
+                        b.category.toLowerCase() ===
+                        selectedCategory.toLowerCase(),
+                );
+                displayBulletins(filtered, "bulletinGrid", "emptyState");
+            }
+        });
+    }
 });
 
 // Load all bulletins
 async function loadBulletins() {
     try {
-        const response = await fetch('/api/bulletins');
+        const response = await fetch("/api/bulletins");
         const bulletins = await response.json();
 
         allBulletins = bulletins;
-        displayBulletins(allBulletins, 'bulletinGrid', 'emptyState');
+        displayBulletins(allBulletins, "bulletinGrid", "emptyState");
     } catch (error) {
         console.error("Error loading bulletins: ", error);
+
+        const container = document.getElementById("bulletinGrid");
+        const emptyContainer = document.getElementById("emptyState");
+
+        if (container) container.innerHTML = "";
+        if (emptyContainer) {
+            emptyContainer.classList.remove("hidden");
+            emptyContainer.querySelector("h3").textContent =
+                "Could not load bulletins";
+            emptyContainer.querySelector("p").textContent =
+                "Please refresh the page or try again later.";
+        }
     }
 }
 
 // Show all bulletins
 function displayBulletins(bulletins, containerId, emptyStateId) {
-    const container = document.querySelector('#' + containerId);
-    const emptyContainer = document.querySelector('#' + emptyStateId);
+    const container = document.querySelector("#" + containerId);
+    const emptyContainer = document.querySelector("#" + emptyStateId);
 
     if (container === null) {
         return;
@@ -57,8 +73,8 @@ function displayBulletins(bulletins, containerId, emptyStateId) {
         emptyContainer.classList.add("hidden");
     }
 
-    bulletinHTMLStr = '';
-    bulletins.map(b => {
+    bulletinHTMLStr = "";
+    bulletins.map((b) => {
         bulletinHTMLStr += `
             <article class="masonry-item rounded-2xl border border-violet-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
                 <div class="flex items-start justify-between gap-3">
@@ -83,12 +99,12 @@ function displayBulletins(bulletins, containerId, emptyStateId) {
                         Edit
                     </a>
                     <a href="/delete?id=${b.id}"
-                        class="text-xs rounded-lg bg-red-400 px-3 py-2 text-white hover:bg-red-600 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md">
+                        class="text-xs rounded-lg bg-red-500 px-3 py-2 text-white hover:bg-red-600 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md">
                         Delete
                     </a>
                 </div>
             </article>
-        `
+        `;
     });
 
     container.innerHTML = bulletinHTMLStr;

@@ -42,7 +42,7 @@ router.get("/", (req, res) => {
 router.get("/id/:id", (req, res) => {
     const id = parseInt(req.params.id);
     const bulletins = getBulletinsArray();
-    const bulletin = bulletins.find(b => b.id === id);
+    const bulletin = bulletins.find(b => Number(b.id) === id);
 
     if (bulletin) {
         res.status(200).json(bulletin);
@@ -56,7 +56,7 @@ router.get("/author/:author", (req, res) => {
     const bulletinAuthor = req.params.author;
     const bulletinsList = getBulletinsArray();
     const bulletins = bulletinsList.filter(b =>
-        b.author.toLowerCase() === bulletinAuthor.toLowerCase()
+        (b.author || "").toLowerCase() === bulletinAuthor.toLowerCase()
     );
 
     if (bulletins.length > 0) {
@@ -148,15 +148,17 @@ router.patch('/:id', (req, res) => {
 /********************************************************/
 router.delete('/:id', (req, res) => {
     const id = Number(req.params.id);
+
     const data = readData();
     const bulletins = data.bulletins || [];
 
-    const idx = bulletins.findIndex(b => Number(b.id) === id);
-    if (idx === -1) {
+    const index = bulletins.findIndex(b => Number(b.id) === id);
+    
+    if (index === -1) {
         return res.status(404).json({ error: `Bulletin with ID=${id} not found` });
     }
 
-    const removed = bulletins.splice(idx, 1)[0];
+    const removed = bulletins.splice(index, 1)[0];
     data.bulletins = bulletins;
     writeData(data);
 

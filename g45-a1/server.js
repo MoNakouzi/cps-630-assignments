@@ -3,7 +3,6 @@ const express = require("express");
 const path = require("path");
 const app = express();
 
-
 // Set the port
 const PORT = 8000;
 

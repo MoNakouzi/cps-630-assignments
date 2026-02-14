@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const preview = document.getElementById("bulletinPreview");
     const confirmBtn = document.getElementById("confirmDelete");
-    const errorMsg = document.getElementById("errorMsg");
 
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
@@ -13,7 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // Load bulletin details (for confirmation preview)
+    // Load bulletin details for confirmation preview
     try {
         const res = await fetch(`/api/bulletins/id/${id}`);
         if (!res.ok) throw new Error("Not found");
@@ -26,31 +25,33 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <span>${b.category}</span> • <span>${b.author}</span> • <span>${b.date}</span>
             </div>
         `;
-    } catch {
+    } catch (err) {
+        console.error("Error loading bulletin:", err);
         preview.textContent = "Bulletin not found.";
         confirmBtn.disabled = true;
         confirmBtn.classList.add("opacity-50", "cursor-not-allowed");
+        alert("Bulletin not found.");
         return;
     }
 
     // Delete on confirm
     confirmBtn.addEventListener("click", async () => {
-        errorMsg.classList.add("hidden");
         try {
-            const res = await fetch(`/api/bulletins/${id}`, { method: "DELETE" });
+            const res = await fetch(`/api/bulletins/${id}`, {
+                method: "DELETE",
+            });
             const data = await res.json().catch(() => ({}));
 
             if (!res.ok) {
-                errorMsg.textContent = data.error || "Failed to delete bulletin.";
-                errorMsg.classList.remove("hidden");
+                alert(data.error || "Failed to delete post.");
                 return;
             }
 
+            alert("Bulletin deleted successfully!");
             window.location.href = "/";
         } catch (err) {
             console.error(err);
-            errorMsg.textContent = "Network/server error while deleting.";
-            errorMsg.classList.remove("hidden");
+            alert("Network/server error while deleting. Please try again.");
         }
     });
 });
