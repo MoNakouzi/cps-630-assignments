@@ -55,7 +55,7 @@ router.get("/id/:id", (req, res) => {
 router.get("/author/:author", (req, res) => {
     const bulletinAuthor = req.params.author;
     const bulletinsList = getBulletinsArray();
-    const bulletins = bulletinsList.filter(b => 
+    const bulletins = bulletinsList.filter(b =>
         b.author.toLowerCase() === bulletinAuthor.toLowerCase()
     );
 
@@ -114,6 +114,21 @@ router.post("/", (req, res) => {
 /********************************************************/
 /********* Defining (CRUD) API DELETE routes ************/
 /********************************************************/
+// DELETE bulletin by id
+router.delete("/:id", (req, res) => {
+    const id = parseInt(req.params.id);
 
+    const data = readData();
+    const beforeCount = data.bulletins.length;
+
+    data.bulletins = data.bulletins.filter(b => Number(b.id) !== id);
+
+    if (data.bulletins.length === beforeCount) {
+        return res.status(404).json({ error: `Bulletin with ID=${id} not found` });
+    }
+
+    writeData(data);
+    return res.status(200).json({ message: "Deleted", id });
+});
 
 module.exports = router;
