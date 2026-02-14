@@ -9,6 +9,9 @@ In the future, this project could be extended with:
 - A real database instead of a JSON file
 - Pagination for large numbers of posts
 
+We used GitHub and Git for version control. Commit history and work can be found here:
+[GitHub commit history link](https://github.com/MoNakouzi/cps-630-assignments/commits/main/g45-a1)
+
 ---
 
 # Documentation
