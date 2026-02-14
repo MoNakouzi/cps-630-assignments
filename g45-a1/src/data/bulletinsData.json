@@ -22,7 +22,7 @@
       "category": "Academics",
       "message": "A study group for CPS 630 will meet every Wednesday at 6:00 PM in Room ENG-201. Everyone is welcome.",
       "author": "CS Course Union",
-      "date": "2026-02-05"
+      "date": "2026-02-13"
     },
     {
       "id": 4,
@@ -42,47 +42,26 @@
     },
     {
       "id": 7,
-      "title": "please",
-      "catagory": "Events",
-      "message": "just",
-      "author": "work",
-      "tags": "",
-      "date": "2026-02-13T08:28:03.267Z"
-    },
-    {
-      "id": 8,
-      "title": "plz",
-      "catagory": "Announcements",
-      "message": "work",
-      "author": "i wanna sleep",
-      "tags": "",
-      "date": "2026-02-13T08:33:11.670Z"
+      "title": "Job Please",
+      "category": "Events",
+      "message": "This is a career fair, I think...",
+      "author": "Job Association",
+      "date": "2026-02-13"
     },
     {
       "id": 9,
       "title": "First Post",
-      "catagory": "Announcements",
-      "message": "Im so excited to share that everything work at long last",
+      "category": "Announcements",
+      "message": "Im so excited to share that everything works, at long last",
       "author": "Kai",
-      "tags": "",
-      "date": "2026-02-13T08:34:57.396Z"
-    },
-    {
-      "id": 10,
-      "title": "Time Fix",
-      "catagory": "Announcements",
-      "message": "Making sure time stamp is nice",
-      "author": "Kai",
-      "tags": "",
       "date": "2026-02-13"
     },
     {
-      "id": 11,
-      "title": "Test Tags",
-      "catagory": "Announcements",
-      "message": "wowowow",
-      "author": "Kai",
-      "tags": "Star Pigeon",
+      "id": 10,
+      "title": "Tested Job Posting",
+      "category": "Events",
+      "message": "Job portal available COOP portal running again",
+      "author": "ASNATH",
       "date": "2026-02-13"
     }
   ]

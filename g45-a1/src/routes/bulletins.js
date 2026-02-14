@@ -1,17 +1,31 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const bulletin_data = require("../data/bulletinsData.json");
+
 const dataPath = path.join(__dirname, "..", "data", "bulletinsData.json");
+
 const router = express.Router();
+
+//Bulletin Storage Functions
+function readData() {
+    try {
+        const raw = fs.readFileSync(dataPath, "utf8");
+        const parsed = JSON.parse(raw || "{}");
+        if (!parsed.bulletins) parsed.bulletins = [];
+        return parsed;
+    } catch (e) {
+        return { bulletins: [] };
+    }
+}
+
+function writeData(data) {
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2), "utf8");
+}
 
 // Preprocessing bulletin data to flatten any nested structures
 const getBulletinsArray = () => {
-    if (Array.isArray(bulletin_data)) {
-        return bulletin_data;
-    } else {
-        return bulletin_data.bulletins;
-    }
+    const data = readData();
+    return data.bulletins;
 }
 
 /*****************************************************/
@@ -41,30 +55,16 @@ router.get("/id/:id", (req, res) => {
 router.get("/author/:author", (req, res) => {
     const bulletinAuthor = req.params.author;
     const bulletinsList = getBulletinsArray();
-    const bulletins = bulletinsList.filter(b => b.author.toLowerCase() === bulletinAuthor.toLowerCase());
+    const bulletins = bulletinsList.filter(b => 
+        b.author.toLowerCase() === bulletinAuthor.toLowerCase()
+    );
 
-    if (bulletins) {
+    if (bulletins.length > 0) {
         res.status(200).json(bulletins);
     } else {
-        res.status(404).json({ error: `Bulletin(s) by ${bulletinAuthor} not found.` })
+        res.status(404).json({ error: `Bulletin(s) by ${bulletinAuthor} not found.` });
     }
 });
-
-//Bulletin Storage Functions
-function readData() {
-    try {
-        const raw = fs.readFileSync(dataPath, "utf8");
-        const parsed = JSON.parse(raw || "{}");
-        if (!parsed.bulletins) parsed.bulletins = [];
-        return parsed;
-    } catch (e) {
-        return { bulletins: [] };
-    }
-}
-
-function writeData(data) {
-    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2), "utf8");
-}
 
 /******************************************************/
 /********* Defining (CRUD) API POST routes ************/
@@ -72,10 +72,10 @@ function writeData(data) {
 
 // Post call for Adding Bulletin to bulletinData.json
 router.post("/", (req, res) => {
-    const { title, description, catagory, tags, author } = req.body;
+    const { title, message, category, author } = req.body;
 
-    if (!title || !catagory || !author) {
-        return res.status(400).json({ error: "title, catagory, and author are required." });
+    if (!title || !category || !author) {
+        return res.status(400).json({ error: "Title, Category, and Author fields are required." });
     }
 
     const data = readData();
@@ -90,12 +90,11 @@ router.post("/", (req, res) => {
 
 
     const newBulletin = {
-        id: nextId,          // simple unique id
+        id: nextId,
         title: title.trim(),
-        catagory: catagory.trim(),
-        message: description.trim(),
+        category: category.trim(),
+        message: (message || "").trim(),
         author: author.trim(),
-        tags: tags.trim(),
         date: new Date().toISOString().split('T')[0]
     };
 
@@ -111,10 +110,56 @@ router.post("/", (req, res) => {
 /********* Defining (CRUD) API PATCH routes ************/
 /*******************************************************/
 
+// PATCH -- update a bulletin by id
+router.patch('/:id', (req, res) => {
+    const id = Number(req.params.id);
+    const data = readData();
+    const bulletins = data.bulletins || [];
 
-/********************************************************/
-/********* Defining (CRUD) API DELETE routes ************/
-/********************************************************/
+    const idx = bulletins.findIndex(b => Number(b.id) === id);
+    if (idx === -1) {
+        return res.status(404).json({ error: `Bulletin with ID=${id} not found` });
+    }
 
+    const existing = bulletins[idx];
+    const { title, message, category, author } = req.body;
+
+    // Validate required fields (title, category, author)
+    if (!title || !category || !author) {
+        return res.status(400).json({ error: 'Title, Category, and Author fields are required.' });
+    }
+
+    const updated = Object.assign({}, existing, {
+        title: String(title).trim(),
+        message: (message || '').trim(),
+        category: String(category).trim(),
+        author: String(author).trim(),
+        date: new Date().toISOString().split('T')[0]
+    });
+
+    bulletins[idx] = updated;
+    data.bulletins = bulletins;
+    writeData(data);
+
+    return res.status(200).json(updated);
+});
+
+// DELETE -- remove a bulletin by id
+router.delete('/:id', (req, res) => {
+    const id = Number(req.params.id);
+    const data = readData();
+    const bulletins = data.bulletins || [];
+
+    const idx = bulletins.findIndex(b => Number(b.id) === id);
+    if (idx === -1) {
+        return res.status(404).json({ error: `Bulletin with ID=${id} not found` });
+    }
+
+    const removed = bulletins.splice(idx, 1)[0];
+    data.bulletins = bulletins;
+    writeData(data);
+
+    return res.status(200).json({ success: true, removed });
+});
 
 module.exports = router;
