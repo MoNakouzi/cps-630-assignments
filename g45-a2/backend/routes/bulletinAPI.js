@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const Bulletin = require("../models/bulletin");
+const Bulletin = require("../models/bulletinSchema");
+const getTorontoDate = require("../utils/getDate")
 
 // Helper: escape regex special chars for safe searching
 function escapeRegex(str) {
@@ -12,7 +13,6 @@ function escapeRegex(str) {
 /********* Defining (CRUD) API CREATE routes ************/
 /********************************************************/
 // Create a new bulletin
-// TO DO: Fix ID generation to be more robust against deletions and concurrent creates
 router.post("/", async (req, res) => {
   try {
     const newBulletin = req.body;
@@ -26,20 +26,15 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Invalid bulletin data" });
     }
 
-    // Get highest id, then + 1
-    const last = await Bulletin.findOne({}, { id: 1 }).sort({ id: -1 }).lean();
-    const nextId = (last?.id ?? 0) + 1;
 
-    // Current date in YYYY-MM-DD format
-    const today = new Date().toISOString().slice(0, 10);
+
 
     const created = await Bulletin.create({
-      id: nextId,
       title: String(newBulletin.title).trim(),
       category: String(newBulletin.category).trim(),
-      message: String(newBulletin.message || "").trim(),
+      message: message ? String(message).trim() : "",
       author: String(newBulletin.author).trim(),
-      date: today,
+      date: getTorontoDate(),
     });
 
     return res.status(201).json(created);
@@ -63,17 +58,17 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get one bulletin by ID
+// Get one bulletin by _id
 // TO DO: Currently not used, should be used for viewing a single bulletin in detail (frontend)
 router.get("/id/:id", async (req, res) => {
   try {
-    const idParam = Number(req.params.id);
+    const idParam = req.params.id;
 
-    if (!Number.isFinite(idParam)) {
-      return res.status(400).json({ error: "Invalid id param" });
+    if (!mongoose.Types.ObjectId.isValid(idParam)) {
+      return res.status(400).json({ error: "Invalid _id param" });
     }
 
-    const bulletin = await Bulletin.findOne({ id: idParam });
+    const bulletin = await Bulletin.findById(idParam);
 
     if (!bulletin) {
       return res.status(404).json({ error: "Bulletin not found" });
@@ -81,35 +76,40 @@ router.get("/id/:id", async (req, res) => {
 
     return res.status(200).json(bulletin);
   } catch (err) {
-    console.error("Error fetching bulletin by ID:", err);
+    console.error("Error fetching bulletin by _id:", err);
     return res.status(500).json({ error: "Server error fetching bulletin" });
   }
 });
 
 // Search bulletins by author (case-insensitive exact match)
 // TO DO: Currently not used, should do a search system (frontend)
-// TO DO: Allow partial matches instead of exact matches
-// TO DO: Allow search by title/category
 router.get("/search", async (req, res) => {
   try {
-    const bulletinAuthor = req.query.author;
+    const searchTerm = req.query.q;
 
-    if (!bulletinAuthor) {
-      return res
-        .status(400)
-        .json({ error: "Author query parameter is required" });
+    if (!searchTerm || !searchTerm.trim()) {
+      return res.status(400).json({
+        error: "Search query parameter 'q' is required",
+      });
     }
 
-    const pattern = new RegExp(`^${escapeRegex(bulletinAuthor)}$`, "i");
-    const bulletins = await Bulletin.find({ author: pattern });
+    const pattern = new RegExp(escapeRegex(searchTerm.trim()), "i");
+
+    const bulletins = await Bulletin.find({
+      $or: [
+        { author: pattern },
+        { title: pattern },
+        { category: pattern },
+      ],
+    });
 
     if (bulletins.length === 0) {
-      return res.status(404).json({ error: "Bulletin not found" });
+      return res.status(404).json({ error: "No matching bulletins found" });
     }
 
     return res.status(200).json(bulletins);
   } catch (err) {
-    console.error("Error searching bulletins by author:", err);
+    console.error("Error searching bulletins:", err);
     return res.status(500).json({ error: "Server error searching bulletins" });
   }
 });
@@ -118,24 +118,45 @@ router.get("/search", async (req, res) => {
 /********* Defining (CRUD) API UPDATE routes ************/
 /********************************************************/
 // Update an existing bulletin using ID
-// TO DO: Currently fails with empty message, but message is not required in Model
-// TO DO: Should allow editing of any field, not just message
 router.patch("/id/:id", async (req, res) => {
   try {
-    const idParam = Number(req.params.id);
-    const { message } = req.body;
+    const idParam = req.params.id;
 
-    if (!Number.isFinite(idParam)) {
-      return res.status(400).json({ error: "Invalid id param" });
-    }
-    if (message === undefined) {
-      return res.status(400).json({ error: "Missing message in request body" });
+    if (!mongoose.Types.ObjectId.isValid(idParam)) {
+      return res.status(400).json({ error: "Invalid _id param" });
     }
 
-    const updated = await Bulletin.findOneAndUpdate(
-      { id: idParam },
-      { $set: { message: String(message).trim() } },
-      { new: true, runValidators: true },
+    const allowedFields = ["title", "category", "message", "author"];
+    const updateData = {};
+
+    for (const field of allowedFields) {
+      if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+        //Allows Empty Strings
+        if (field === "message") {
+          updateData.message =
+            req.body.message === undefined || req.body.message === null
+              ? ""
+              : String(req.body.message).trim();
+        } else {
+          updateData[field] = String(req.body[field]).trim();
+        }
+      }
+    }
+
+    // Do not allow empty update requests
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        error: "Provide at least one field to update: title, category, message, or author",
+      });
+    }
+
+    // Always update date when bulletin is edited
+    updateData.date = getTorontoDate();
+
+    const updated = await Bulletin.findByIdAndUpdate(
+      idParam,
+      { $set: updateData },
+      { new: true, runValidators: true }
     );
 
     if (!updated) {
@@ -153,15 +174,16 @@ router.patch("/id/:id", async (req, res) => {
 /********* Defining (CRUD) API DELETE routes ************/
 /********************************************************/
 // Delete a bulletin by ID
+
 router.delete("/id/:id", async (req, res) => {
   try {
-    const idParam = Number(req.params.id);
+    const idParam = req.params.id;
 
-    if (!Number.isFinite(idParam)) {
-      return res.status(400).json({ error: "Invalid id param" });
+    if (!mongoose.Types.ObjectId.isValid(idParam)) {
+      return res.status(400).json({ error: "Invalid _id param" });
     }
 
-    const deleted = await Bulletin.findOneAndDelete({ id: idParam });
+    const deleted = await Bulletin.findByIdAndDelete(idParam);
 
     if (!deleted) {
       return res.status(404).json({ error: "Bulletin not found" });

@@ -1,11 +1,6 @@
 const mongoose = require("mongoose");
 
 const BulletinSchema = new mongoose.Schema({
-  id: {
-    type: Number,
-    required: true,
-    unique: true,
-  },
   title: {
     type: String,
     required: true,
@@ -32,6 +27,7 @@ const BulletinSchema = new mongoose.Schema({
     trim: true,
   },
 });
+
 
 const Bulletin = mongoose.model("bulletin", BulletinSchema);
 

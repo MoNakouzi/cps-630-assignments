@@ -1,4 +1,4 @@
-const Bulletin = require("../models/bulletin");
+const Bulletin = require("../models/bulletinSchema");
 const { bulletins } = require("../data/seed");
 
 async function addSeedData() {
@@ -13,16 +13,12 @@ async function addSeedData() {
           const newBulletin = new Bulletin(bulletin);
           await newBulletin.save();
           console.log(
-            "Bulletin added with ID: " +
-              bulletin.id +
-              " and title: " +
+            "Bulletin added with Title: " + 
               bulletin.title,
           );
         } catch (err) {
           console.error(
-            "Error adding bulletin with ID: " +
-              bulletin.id +
-              " and title: " +
+            "Error adding bulletin with Title: " +
               bulletin.title +
               " " +
               err,

@@ -1,7 +1,6 @@
 // Create test (seed) data to test if the collection is empty
-export const bulletins = [
+const bulletins = [
   {
-    id: 1,
     title: "Free Breakfast Club",
     category: "Events",
     message:
@@ -10,7 +9,6 @@ export const bulletins = [
     date: "2026-02-14",
   },
   {
-    id: 2,
     title: "Lost Wallet Found",
     category: "Announcements",
     message:
@@ -19,7 +17,6 @@ export const bulletins = [
     date: "2026-01-30",
   },
   {
-    id: 3,
     title: "Study Group for CPS 630",
     category: "Academics",
     message:
@@ -28,7 +25,6 @@ export const bulletins = [
     date: "2026-02-13",
   },
   {
-    id: 4,
     title: "Gym Maintenance Notice",
     category: "Announcements",
     message:
@@ -37,7 +33,6 @@ export const bulletins = [
     date: "2026-02-03",
   },
   {
-    id: 6,
     title: "Career Fair This Friday",
     category: "Events",
     message:
@@ -46,7 +41,6 @@ export const bulletins = [
     date: "2026-02-14",
   },
   {
-    id: 7,
     title: "Job Fair",
     category: "Announcements",
     message: "I will finally get a job! Probably...",
@@ -54,3 +48,5 @@ export const bulletins = [
     date: "2026-02-14",
   },
 ];
+
+module.exports = {bulletins};
