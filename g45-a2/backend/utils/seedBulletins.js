@@ -13,16 +13,12 @@ async function addSeedData() {
           const newBulletin = new Bulletin(bulletin);
           await newBulletin.save();
           console.log(
-            "Bulletin added with ID: " +
-              bulletin.id +
-              " and title: " +
+            "Bulletin added with Title: " + 
               bulletin.title,
           );
         } catch (err) {
           console.error(
-            "Error adding bulletin with ID: " +
-              bulletin.id +
-              " and title: " +
+            "Error adding bulletin with Title: " +
               bulletin.title +
               " " +
               err,
