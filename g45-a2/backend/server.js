@@ -19,7 +19,7 @@ connectDB();
 addSeedData();
 
 // Routes
-app.use("/api/bulletins", bulletinsRouter);
+app.use("/bulletins", bulletinsRouter);
 
 // Health check route
 app.get("/health", (req, res) => {

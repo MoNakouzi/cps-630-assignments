@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 
 const Bulletin = require("../models/bulletinSchema");
 const getTorontoDate = require("../utils/getDate");
@@ -17,20 +18,16 @@ router.post("/", async (req, res) => {
     try {
         const newBulletin = req.body;
 
-        if (
-            !newBulletin ||
-            !newBulletin.title ||
-            !newBulletin.category ||
-            !newBulletin.author
-        ) {
-            return res.status(400).json({ error: "Invalid bulletin data" });
+        if (!newBulletin || !newBulletin.title) {
+            return res.status(400).json({ error: "Title is required" });
         }
 
+        // Map frontend 'content' to backend 'message', default others
         const created = await Bulletin.create({
             title: String(newBulletin.title).trim(),
-            category: String(newBulletin.category).trim(),
-            message: message ? String(message).trim() : "",
-            author: String(newBulletin.author).trim(),
+            category: newBulletin.category ? String(newBulletin.category).trim() : "General",
+            message: newBulletin.content ? String(newBulletin.content).trim() : (newBulletin.message ? String(newBulletin.message).trim() : ""),
+            author: newBulletin.author ? String(newBulletin.author).trim() : "Anonymous",
             date: getTorontoDate(),
         });
 
@@ -56,31 +53,6 @@ router.get("/", async (req, res) => {
         return res
             .status(500)
             .json({ error: "Server error fetching bulletins" });
-    }
-});
-
-// Get one bulletin by _id
-// TO DO: Currently not used, should be used for viewing a single bulletin in detail (frontend)
-router.get("/id/:id", async (req, res) => {
-    try {
-        const idParam = req.params.id;
-
-        if (!mongoose.Types.ObjectId.isValid(idParam)) {
-            return res.status(400).json({ error: "Invalid _id param" });
-        }
-
-        const bulletin = await Bulletin.findById(idParam);
-
-        if (!bulletin) {
-            return res.status(404).json({ error: "Bulletin not found" });
-        }
-
-        return res.status(200).json(bulletin);
-    } catch (err) {
-        console.error("Error fetching bulletin by _id:", err);
-        return res
-            .status(500)
-            .json({ error: "Server error fetching bulletin" });
     }
 });
 
@@ -149,17 +121,44 @@ router.get("/search", async (req, res) => {
   }
 });
 
-/********************************************************/
-/********* Defining (CRUD) API UPDATE routes ************/
-/********************************************************/
-// Update an existing bulletin using ID
-router.patch("/id/:id", async (req, res) => {
+// Get one bulletin by _id
+// Moved below search to prevent ID collision
+router.get("/:id", async (req, res) => {
     try {
         const idParam = req.params.id;
 
         if (!mongoose.Types.ObjectId.isValid(idParam)) {
             return res.status(400).json({ error: "Invalid _id param" });
         }
+
+        const bulletin = await Bulletin.findById(idParam);
+
+        if (!bulletin) {
+            return res.status(404).json({ error: "Bulletin not found" });
+        }
+
+        return res.status(200).json(bulletin);
+    } catch (err) {
+        console.error("Error fetching bulletin by _id:", err);
+        return res
+            .status(500)
+            .json({ error: "Server error fetching bulletin" });
+    }
+});
+
+/********************************************************/
+/********* Defining (CRUD) API UPDATE routes ************/
+/********************************************************/
+router.put("/:id", async (req, res) => {
+    try {
+        const idParam = req.params.id;
+
+        if (!mongoose.Types.ObjectId.isValid(idParam)) {
+            return res.status(400).json({ error: "Invalid _id param" });
+        }
+
+        // Map frontend 'content' to 'message'
+        if (req.body.content) req.body.message = req.body.content;
 
         const allowedFields = ["title", "category", "message", "author"];
         const updateData = {};
@@ -211,9 +210,7 @@ router.patch("/id/:id", async (req, res) => {
 /********************************************************/
 /********* Defining (CRUD) API DELETE routes ************/
 /********************************************************/
-// Delete a bulletin by ID
-
-router.delete("/id/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
     try {
         const idParam = req.params.id;
 
