@@ -1,53 +1,50 @@
-const express   = require('express');
-const cors      = require('cors');
-const app       = express();
-const path      = require('path');
-const { default: mongoose } = require('mongoose');
-const Post = require('./models/Posts');
+// Import express, path, cors and mongoose
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
+const { default: mongoose } = require("mongoose");
 
-const PORT          = 8080;
-const DATABASE_HOST = 'localhost';
-const DATABASE_PORT = 27017;
-
-//Enable CORS for frontend requests
+// Create an express app
+const app = express();
 app.use(cors());
-app.use(express.json());
 
-//Connect to Local DB
-const dbURL = `mongodb://${DATABASE_HOST}:${DATABASE_PORT}/post_library`;
+// Import models
+const Bulletin = require("./models/bulletin");
+
+// Set up variables for MongoDB connection
+const PORT = 8080;
+const DATABASE_URL = "localhost";
+const DATABASE_PORT = 27017;
+const DATABASE_NAME = "bulletinDB";
+
+// Connect to MongoDB using mongoose
+const dbURL = `mongodb://${DATABASE_URL}:${DATABASE_PORT}/${DATABASE_NAME}`;
 mongoose.connect(dbURL);
-
-//Test the connection
 const db = mongoose.connection;
-db.on('error', function(e) {
-   console.log('error connecting:' + e);
+
+// Handle MongoDB connection events
+db.on("error", function(e) {
+    console.error("MongoDB connection error:", e);
 });
-db.on('open', function() {
-    console.log('database connected!');
+db.on("open", function() {
+    console.log("Connected to MongoDB at", dbURL);
 });
 
-//Initial posts to be added to DB
-let bulletins = [
-  { id: 1, title: "Free Breakfast Club", category: "Events", message: "Free coffee and donuts will be available in the Science Lounge from 9:00 AM to 11:00 AM. First come, first served.", author: "Science Department", date: "2026-02-14" },
-  { id: 2, title: "Lost Wallet Found", category: "Announcements", message: "A black leather wallet was found near the library entrance on Friday evening. Please contact the front desk with a description to claim it.", author: "Campus Security", date: "2026-01-30" },
-  { id: 3, title: "Study Group for CPS 630", category: "Academics", message: "A study group for CPS 630 will meet every Wednesday at 6:00 PM in Room ENG-201. Everyone is welcome. Please come to learn more about the course, and how to apply your knowledge.", author: "CS Course Union", date: "2026-02-13" },
-  { id: 4, title: "Gym Maintenance Notice", category: "Announcements", message: "The campus gym will be closed for maintenance this Saturday from 8:00 AM to 4:00 PM. We apologize for the inconvenience. We are trying our best to resolve this as soon as possible and we will get back to you urgently.", author: "Facilities Management", date: "2026-02-03" },
-  { id: 6, title: "Career Fair This Friday", category: "Events", message: "Meet recruiters from tech, finance, and healthcare companies at the Winter Career Fair. Bring your resume and dress business casual.", author: "Career and Co-op Center", date: "2026-02-14" },
-  { id: 7, title: "Job Fair", category: "Announcements", message: "I will finally get a job! Probably...", author: "CS Student", date: "2026-02-14" }
-];
+// Create test (seed) data if the collection is empty
+const seedData = [];
 
-//Add the initial DB Posts
-async function addTestPostsToMongoDB(){
+// Add seed data to the database if the collection is empty
+async function addSeedData() {
     const postCount = await Post.countDocuments();
 
     if (postCount === 0){
-        console.log('Adding Initial Posts');
+        console.log('Database is empty. Adding initial posts...');
 
         bulletins.forEach(post => {
             const newPost = new Post(post);
             newPost.save()
-                .then(() => console.log("Post added with Id: " + post.id + " And Title: " + post.title ))
-                .catch(err => console.error("Error adding posgt with ID: " + post.id + " And Title: " +   post.title + " " + err));
+                .then(() => console.log("Post added with ID: " + post.id + " and title: " + post.title ))
+                .catch(err => console.error("Error adding post with ID: " + post.id + " and title: " +   post.title + " " + err));
         });
 
     }
@@ -55,10 +52,54 @@ async function addTestPostsToMongoDB(){
         console.log("Post already exists. Not adding test book.");
         return;
     }
-}
+};
+addSeedData();
 
-addTestPostsToMongoDB();
+/********************************************************/
+/********* Defining (CRUD) API CREATE routes ************/
+/********************************************************/
+//Add new posts
+//Should probably make a proper and unique id system
+//This will break if 2 people try to add a post at the same time
+app.post("/api/posts", async (req, res) => {
+  try {
+    const newPost = req.body;
 
+    if (
+      !newPost ||
+      newPost.title === undefined ||
+      newPost.category === undefined ||
+      newPost.author === undefined
+    ) {
+      return res.status(400).json({ error: "Invalid post data" });
+    }
+
+    // Get highest existing id, then +1
+    const last = await Post.findOne({}, { id: 1 }).sort({ id: -1 }).lean();
+    const nextId = (last?.id ?? 0) + 1;
+
+    // Current date in YYYY-MM-DD
+    const today = new Date().toISOString().slice(0, 10);
+
+    const created = await Post.create({
+      id: nextId,
+      title: String(newPost.title).trim(),
+      category: String(newPost.category).trim(),
+      message: String(newPost.message).trim(),
+      author: String(newPost.author).trim(),
+      date: today, // auto-fill date
+    });
+
+    return res.status(201).json(created);
+  } catch (err) {
+    console.error("Error creating post:", err);
+    return res.status(500).json({ error: "Server error creating post" });
+  }
+});
+
+/******************************************************/
+/********* Defining (CRUD) API READ routes ************/
+/******************************************************/
 //Get all Posts from DB (HomePage)
 app.get('/api/posts', async (req, res)  => {
     try {
@@ -118,45 +159,9 @@ app.get('api/posts/search', async (req, res) => {
 });
 
 
-//Add new posts
-//Should probably make a proper and unique id system
-//This will break if 2 people try to add a post at the same time
-app.post("/api/posts", async (req, res) => {
-  try {
-    const newPost = req.body;
-
-    if (
-      !newPost ||
-      newPost.title === undefined ||
-      newPost.category === undefined ||
-      newPost.author === undefined
-    ) {
-      return res.status(400).json({ error: "Invalid post data" });
-    }
-
-    // Get highest existing id, then +1
-    const last = await Post.findOne({}, { id: 1 }).sort({ id: -1 }).lean();
-    const nextId = (last?.id ?? 0) + 1;
-
-    // Current date in YYYY-MM-DD
-    const today = new Date().toISOString().slice(0, 10);
-
-    const created = await Post.create({
-      id: nextId,
-      title: String(newPost.title).trim(),
-      category: String(newPost.category).trim(),
-      message: String(newPost.message).trim(),
-      author: String(newPost.author).trim(),
-      date: today, // auto-fill date
-    });
-
-    return res.status(201).json(created);
-  } catch (err) {
-    console.error("Error creating post:", err);
-    return res.status(500).json({ error: "Server error creating post" });
-  }
-});
-
+/********************************************************/
+/********* Defining (CRUD) API UPDATE routes ************/
+/********************************************************/
 // Update an Existing posts message by finding the ID
 app.patch("/api/posts/id/:id", async (req, res) => {
   try {
@@ -188,6 +193,9 @@ app.patch("/api/posts/id/:id", async (req, res) => {
 });
 
 
+/********************************************************/
+/********* Defining (CRUD) API DELETE routes ************/
+/********************************************************/
 // Delete Post DB entry 
 app.delete('/api/posts/id/:id', async (req, res) => {
     try {
@@ -205,5 +213,7 @@ app.delete('/api/posts/id/:id', async (req, res) => {
     }
 });
 
-//Starts Server
-app.listen(PORT, () => { console.log("Server started on port: " + PORT) });
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
