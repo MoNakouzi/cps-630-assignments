@@ -87,38 +87,66 @@ router.get("/id/:id", async (req, res) => {
 // Search bulletins by author (case-insensitive exact match)
 // TO DO: Currently not used, should do a search system (frontend)
 router.get("/search", async (req, res) => {
-    try {
-        const searchTerm = req.query.q;
+  try {
+    const searchTerm = req.query.q;
+    const field = req.query.field;
 
-        if (!searchTerm || !searchTerm.trim()) {
-            return res.status(400).json({
-                error: "Search query parameter 'q' is required",
-            });
-        }
-
-        const pattern = new RegExp(escapeRegex(searchTerm.trim()), "i");
-
-        const bulletins = await Bulletin.find({
-            $or: [
-                { author: pattern },
-                { title: pattern },
-                { category: pattern },
-            ],
-        });
-
-        if (bulletins.length === 0) {
-            return res
-                .status(404)
-                .json({ error: "No matching bulletins found" });
-        }
-
-        return res.status(200).json(bulletins);
-    } catch (err) {
-        console.error("Error searching bulletins:", err);
-        return res
-            .status(500)
-            .json({ error: "Server error searching bulletins" });
+    if (!searchTerm || !searchTerm.trim()) {
+      return res.status(400).json({
+        error: "Search query parameter 'q' is required",
+      });
     }
+
+    if (!field || !field.trim()) {
+      return res.status(400).json({
+        error: "Search field parameter 'field' is required",
+      });
+    }
+
+    const trimmedField = field.trim().toLowerCase();
+    const allowedFields = ["title", "category", "author", "any"];
+
+    if (!allowedFields.includes(trimmedField)) {
+      return res.status(400).json({
+        error: "Search field must be one of: title, category, author, any",
+      });
+    }
+
+    const pattern = new RegExp(escapeRegex(searchTerm.trim()), "i");
+
+    let query = {};
+
+    if (trimmedField === "title") {
+      query = { title: pattern };
+    } else if (trimmedField === "category") {
+      query = { category: pattern };
+    } else if (trimmedField === "author") {
+      query = { author: pattern };
+    } else if (trimmedField === "any") {
+      query = {
+        $or: [
+          { author: pattern },
+          { title: pattern },
+          { category: pattern },
+        ],
+      };
+    }
+
+    const bulletins = await Bulletin.find(query);
+
+    if (bulletins.length === 0) {
+      return res.status(404).json({
+        error: "No matching bulletins found",
+      });
+    }
+
+    return res.status(200).json(bulletins);
+  } catch (err) {
+    console.error("Error searching bulletins:", err);
+    return res.status(500).json({
+      error: "Server error searching bulletins",
+    });
+  }
 });
 
 /********************************************************/
