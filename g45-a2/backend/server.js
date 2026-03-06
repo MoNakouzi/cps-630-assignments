@@ -6,7 +6,7 @@ const connectDB = require("./utils/db");
 const addSeedData = require("./utils/seedBulletins");
 
 // Routes
-const bulletinsRouter = require("./routes/bulletins");
+const bulletinsRouter = require("./routes/bulletinAPI");
 
 const app = express();
 

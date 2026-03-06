@@ -1,5 +1,5 @@
 // Create test (seed) data to test if the collection is empty
-export const bulletins = [
+const bulletins = [
   {
     title: "Free Breakfast Club",
     category: "Events",
@@ -48,3 +48,5 @@ export const bulletins = [
     date: "2026-02-14",
   },
 ];
+
+module.exports = {bulletins};
