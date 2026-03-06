@@ -59,6 +59,35 @@ router.get("/", async (req, res) => {
     }
 });
 
+// Gets all unique categories
+router.get("/categories", async (req, res) => {
+  try {
+    const categories = await Bulletin.distinct("category");
+    return res.status(200).json(categories);
+  } catch (err) {
+    console.error("Error fetching categories:", err);
+    return res
+      .status(500)
+      .json({ error: "Server error fetching categories" });
+  }
+});
+
+//Gets Post by category
+router.get("/:category", async (req, res) => {
+  try {
+    const { category } = req.params;
+
+    const bulletins = await Bulletin.find({ category: category });
+
+    return res.status(200).json(bulletins);
+  } catch (err) {
+    console.error("Error fetching bulletins by category:", err);
+    return res
+      .status(500)
+      .json({ error: "Server error fetching bulletins by category" });
+  }
+});
+
 // Get one bulletin by _id
 // TO DO: Currently not used, should be used for viewing a single bulletin in detail (frontend)
 router.get("/id/:id", async (req, res) => {
