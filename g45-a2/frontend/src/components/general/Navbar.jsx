@@ -7,18 +7,26 @@ export default function Navbar() {
                     className="flex items-center gap-2 font-bold text-lg text-slate-900 hover:text-violet-700 transition-colors ease-in-out duration-300"
                 >
                     <img
-                        className="h-8 w-8 rounded-full bg-gradient-to-b from-violet-300 to-violet-400 object-fill"
+                        className="h-8 w-8 rounded-full bg-linear-to-b from-violet-300 to-violet-400 object-fill"
                         src="/icon.png"
                     />
                     Campus Bulletin Board
                 </a>
-                <ul className="flex items-center gap-5 text-sm font-medium text-slate-700 mb-2">
+                <ul className="flex items-center gap-5 text-sm font-medium text-slate-700">
                     <li>
                         <a
                             href="/"
                             className="text-violet-500 hover:text-violet-800 hover:underline transition-colors ease-in-out duration-300"
                         >
                             Home
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            href="/bulletins"
+                            className="text-violet-500 hover:text-violet-800 hover:underline transition-colors ease-in-out duration-300"
+                        >
+                            Bulletin Board
                         </a>
                     </li>
                     <li>
