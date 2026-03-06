@@ -9,16 +9,7 @@ const PORT          = 8080;
 const DATABASE_HOST = 'localhost';
 const DATABASE_PORT = 27017;
 
-<<<<<<< Updated upstream
 //Enable CORS for frontend requests
-=======
-// Routes
-const bulletinsRouter = require("./routes/bulletinAPI");
-
-const app = express();
-
-// Middleware
->>>>>>> Stashed changes
 app.use(cors());
 app.use(express.json());
 
