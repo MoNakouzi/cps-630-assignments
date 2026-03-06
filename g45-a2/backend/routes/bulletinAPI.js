@@ -174,15 +174,16 @@ router.patch("/id/:id", async (req, res) => {
 /********* Defining (CRUD) API DELETE routes ************/
 /********************************************************/
 // Delete a bulletin by ID
+
 router.delete("/id/:id", async (req, res) => {
   try {
-    const idParam = Number(req.params.id);
+    const idParam = req.params.id;
 
-    if (!Number.isFinite(idParam)) {
-      return res.status(400).json({ error: "Invalid id param" });
+    if (!mongoose.Types.ObjectId.isValid(idParam)) {
+      return res.status(400).json({ error: "Invalid _id param" });
     }
 
-    const deleted = await Bulletin.findOneAndDelete({ id: idParam });
+    const deleted = await Bulletin.findByIdAndDelete(idParam);
 
     if (!deleted) {
       return res.status(404).json({ error: "Bulletin not found" });
