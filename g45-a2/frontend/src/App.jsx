@@ -12,9 +12,9 @@ import Footer from "./components/general/Footer.jsx";
 
 export default function App() {
     return (
-        <div className="app">
+        <div className="app bg-violet-100 min-h-screen flex flex-col">
             <Navbar />
-            <div className="container bg-violet-100">
+            <div>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/bulletins" element={<BulletinList />} />
