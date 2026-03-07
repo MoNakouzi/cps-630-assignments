@@ -33,7 +33,6 @@ export default function BulletinDetail() {
                 }
 
                 const data = await response.json();
-                console.log("Fetched bulletin:", data);
                 setBulletin(data);
             } catch (err) {
                 console.error("Error fetching bulletin:", err);
