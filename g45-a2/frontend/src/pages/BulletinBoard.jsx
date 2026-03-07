@@ -4,7 +4,7 @@ import BulletinGrid from "../components/bulletinList/BulletinGrid";
 import SearchBulletins from "../components/bulletinList/SearchBulletins";
 import API_BASE_URL from "../config";
 
-export default function BulletinList() {
+export default function BulletinBoard() {
     const [bulletins, setBulletins] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");

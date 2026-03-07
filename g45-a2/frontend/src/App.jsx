@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home.jsx";
-import BulletinList from "./pages/BulletinList.jsx";
+import BulletinBoard from "./pages/BulletinBoard.jsx";
 import BulletinDetail from "./pages/BulletinDetail.jsx";
 import CreateBulletin from "./pages/CreateBulletin.jsx";
 import EditBulletin from "./pages/EditBulletin.jsx";
@@ -19,7 +19,7 @@ export default function App() {
                 {/* Routing different pages */}
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/bulletins" element={<BulletinList />} />
+                    <Route path="/bulletins" element={<BulletinBoard />} />
                     <Route path="/bulletins/:id" element={<BulletinDetail />} />
                     <Route path="/create" element={<CreateBulletin />} />
                     <Route path="/edit/:id" element={<EditBulletin />} />
