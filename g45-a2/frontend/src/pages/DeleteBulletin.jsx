@@ -16,7 +16,7 @@ export default function DeleteBulletin() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState("");
 
-    // reset scroll position to top
+    // reset scroll position to top since delete box is on top
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -81,7 +81,7 @@ export default function DeleteBulletin() {
             console.error("Error deleting bulletin:", err);
             alert(`Error deleting bulletin: ${err.message}`);
 
-            // re-enable button if deletion fails
+            // re-enable button if delete fails
             setIsDeleting(false);
         }
     }

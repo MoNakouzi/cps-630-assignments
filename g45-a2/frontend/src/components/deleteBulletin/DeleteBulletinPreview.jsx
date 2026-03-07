@@ -1,6 +1,6 @@
 export default function DeleteBulletinPreview({ bulletin }) {
     if (!bulletin) {
-        return null;
+        return <p>No bulletin selected</p>;
     }
 
     return (
