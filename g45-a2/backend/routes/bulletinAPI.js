@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 
+const mongoose = require("mongoose");
 const Bulletin = require("../models/bulletinSchema");
 const getTorontoDate = require("../utils/getDate");
 
@@ -28,6 +29,11 @@ router.post("/", async (req, res) => {
             category: newBulletin.category ? String(newBulletin.category).trim() : "General",
             message: newBulletin.content ? String(newBulletin.content).trim() : (newBulletin.message ? String(newBulletin.message).trim() : ""),
             author: newBulletin.author ? String(newBulletin.author).trim() : "Anonymous",
+            category: String(newBulletin.category).trim(),
+            message: newBulletin.message
+                ? String(newBulletin.message).trim()
+                : "",
+            author: String(newBulletin.author).trim(),
             date: getTorontoDate(),
         });
 
@@ -43,10 +49,82 @@ router.post("/", async (req, res) => {
 /******************************************************/
 /********* Defining (CRUD) API READ routes ************/
 /******************************************************/
-// Get all bulletins (HomePage)
+// Get bulletins with optional filtering by category and/or search term (in title, category, or author)
 router.get("/", async (req, res) => {
     try {
-        const bulletins = await Bulletin.find({});
+        const selectedCategory = req.query.category;
+        const searchTerm = req.query.q;
+        const field = req.query.field;
+
+        let query = {};
+
+        if (
+            selectedCategory &&
+            selectedCategory.trim().toLowerCase() !== "all"
+        ) {
+            query.category = selectedCategory.trim();
+        }
+
+        if (searchTerm && searchTerm.trim()) {
+            const trimmedField = field ? field.trim().toLowerCase() : "any";
+            const allowedFields = ["title", "category", "author", "any"];
+
+            if (!allowedFields.includes(trimmedField)) {
+                return res.status(400).json({
+                    error: "Search field must be one of: title, category, author, any",
+                });
+            }
+
+            const pattern = new RegExp(escapeRegex(searchTerm.trim()), "i");
+
+            if (trimmedField === "title") {
+                query.title = pattern;
+            } else if (trimmedField === "category") {
+                query.category = pattern;
+            } else if (trimmedField === "author") {
+                query.author = pattern;
+            } else if (trimmedField === "any") {
+                query.$or = [
+                    { author: pattern },
+                    { title: pattern },
+                    { category: pattern },
+                ];
+            }
+
+            if (
+                selectedCategory &&
+                selectedCategory.trim().toLowerCase() !== "all" &&
+                trimmedField === "category"
+            ) {
+                query = {
+                    $and: [
+                        { category: selectedCategory.trim() },
+                        { category: pattern },
+                    ],
+                };
+            }
+
+            if (
+                selectedCategory &&
+                selectedCategory.trim().toLowerCase() !== "all" &&
+                trimmedField === "any"
+            ) {
+                query = {
+                    $and: [
+                        { category: selectedCategory.trim() },
+                        {
+                            $or: [
+                                { author: pattern },
+                                { title: pattern },
+                                { category: pattern },
+                            ],
+                        },
+                    ],
+                };
+            }
+        }
+
+        const bulletins = await Bulletin.find(query);
         return res.status(200).json(bulletins);
     } catch (err) {
         console.error("Error fetching bulletins:", err);
@@ -124,6 +202,22 @@ router.get("/search", async (req, res) => {
 // Get one bulletin by _id
 // Moved below search to prevent ID collision
 router.get("/:id", async (req, res) => {
+// Gets all unique categories
+router.get("/categories", async (req, res) => {
+    try {
+        const categories = await Bulletin.distinct("category");
+        return res.status(200).json(categories);
+    } catch (err) {
+        console.error("Error fetching categories:", err);
+        return res
+            .status(500)
+            .json({ error: "Server error fetching categories" });
+    }
+});
+
+// Get one bulletin by _id
+// TO DO: Currently not used, should be used for viewing a single bulletin in detail (frontend)
+router.get("/id/:id", async (req, res) => {
     try {
         const idParam = req.params.id;
 

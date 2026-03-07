@@ -5,3 +5,27 @@
     flex-direction: column;
     min-height: 100vh;
 }
+
+.masonry {
+    column-count: 1;
+    column-gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    /* sm */
+    .masonry {
+        column-count: 2;
+    }
+}
+
+@media (min-width: 1024px) {
+    /* lg */
+    .masonry {
+        column-count: 3;
+    }
+}
+
+.masonry-item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+}
