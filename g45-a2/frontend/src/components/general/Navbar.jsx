@@ -32,7 +32,7 @@ export default function Navbar() {
                     ))}
                     <li>
                         <a
-                            href="/add"
+                            href="/create"
                             className="rounded-lg bg-violet-500 px-3 py-2 text-white hover:bg-violet-700 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
                         >
                             Add Item +

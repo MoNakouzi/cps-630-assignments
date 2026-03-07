@@ -59,7 +59,7 @@ export default function BulletinDetail() {
                 <div className="border-b border-violet-100 bg-linear-to-r from-violet-50 to-white px-6 py-6 sm:px-8">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-600">
+                            <p className="text-xs font-semibold uppercase text-violet-600">
                                 Bulletin Details
                             </p>
 
@@ -78,7 +78,7 @@ export default function BulletinDetail() {
 
                 <div className="px-6 py-6 sm:px-8">
                     <dl className="divide-y divide-slate-100">
-                        <div className="grid gap-2 py-4 sm:grid-cols-[160px_1fr] sm:gap-6">
+                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
                             <dt className="text-sm font-semibold text-slate-500">
                                 Created By
                             </dt>
@@ -87,7 +87,7 @@ export default function BulletinDetail() {
                             </dd>
                         </div>
 
-                        <div className="grid gap-2 py-4 sm:grid-cols-[160px_1fr] sm:gap-6">
+                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
                             <dt className="text-sm font-semibold text-slate-500">
                                 Category
                             </dt>
@@ -96,7 +96,7 @@ export default function BulletinDetail() {
                             </dd>
                         </div>
 
-                        <div className="grid gap-2 py-4 sm:grid-cols-[160px_1fr] sm:gap-6">
+                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
                             <dt className="text-sm font-semibold text-slate-500">
                                 Date
                             </dt>
@@ -105,7 +105,7 @@ export default function BulletinDetail() {
                             </dd>
                         </div>
 
-                        <div className="grid gap-2 py-4 sm:grid-cols-[160px_1fr] sm:gap-6">
+                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
                             <dt className="text-sm font-semibold text-slate-500">
                                 Bulletin ID
                             </dt>
@@ -114,7 +114,7 @@ export default function BulletinDetail() {
                             </dd>
                         </div>
 
-                        <div className="grid gap-2 py-4 sm:grid-cols-[160px_1fr] sm:gap-6">
+                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
                             <dt className="text-sm font-semibold text-slate-500">
                                 Message
                             </dt>
