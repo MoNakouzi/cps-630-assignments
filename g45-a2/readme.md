@@ -8,8 +8,10 @@ The project follows the folder structure used in the labs, with a separate front
 
 Overall, this project includes a working backend connected to MongoDB, a REST API with CRUD functionality, and multiple frontend views for interacting with the data, as per the assignment requirements.
 
-In the future, this project could be improved by adding user authentication, image uploads, better styling, improved error handling, and a more complete frontend flow for all CRUD actions.
+In the future, this project could be improved by adding user authentication, image uploads, pagination, better styling, improved error handling, and a more complete frontend flow for all CRUD actions.
 
+We used GitHub and Git for version control. Commit history and work can be found here:
+[GitHub commit history link](https://github.com/MoNakouzi/cps-630-assignments/commits/main/g45-a2)
 
 ## 2. How This Project Meets the Assignment Requirements
 
