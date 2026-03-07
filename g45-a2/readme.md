@@ -1,6 +1,6 @@
 # Campus Bulletin Board
 
-## Overview
+## 1. Overview
 
 This project is a MERN style web application created for the CPS 630 CRUD Application assignment. Our app is called **Campus Bulletin Board**, and the main idea behind it is to give students a simple place to post and manage campus related announcements. These can include club events, reminders, general notices, and other updates that students may want to share.
 
@@ -12,7 +12,7 @@ In the future, this project could be improved by adding user authentication, ima
 
 ---
 
-## How This Project Meets the Assignment Requirements
+## 2. How This Project Meets the Assignment Requirements
 
 This project matches the assignment requirements in the following ways:
 
@@ -39,7 +39,7 @@ This project matches the assignment requirements in the following ways:
 
 ---
 
-## Project Structure
+## 3. Project Structure
 
 ```text
 g45-a2/
@@ -62,9 +62,9 @@ g45-a2/
 
 ---
 
-## Technologies Used
+## 4. Technologies Used
 
-### Backend
+### 4.1. Backend
 
 - Node.js
 - Express
@@ -72,7 +72,7 @@ g45-a2/
 - Mongoose
 - CORS
 
-### Frontend
+### 4.2. Frontend
 
 - React
 - Vite
@@ -81,9 +81,9 @@ g45-a2/
 
 ---
 
-## How to Run the Project
+## 5. How to Run the Project
 
-### 1. Start MongoDB
+### Step 1: Start MongoDB
 
 Before running the project, make sure your MongoDB service is started.
 
@@ -100,7 +100,7 @@ brew services start mongodb-community
 
 ---
 
-### 2. Start the Backend
+### Step 2: Start the Backend
 
 Open a terminal and go into the backend folder:
 
@@ -120,7 +120,7 @@ When the backend starts, it connects to MongoDB and checks whether the collectio
 
 ---
 
-### 3. Start the Frontend
+### Step 3: Start the Frontend
 
 Open a second terminal and go into the frontend folder:
 
@@ -138,7 +138,7 @@ http://localhost:5173
 
 ---
 
-## How to Use the Project
+## 6. How to Use the Project
 
 1. Start MongoDB.
 2. Start the backend using `npm run start` inside the `backend` folder.
@@ -160,39 +160,39 @@ These views help demonstrate the required frontend structure and show how the fr
 
 ---
 
-## REST API Summary
+## 7. REST API Summary
 
-Base URL:
+### 7.1. Base URL:
 
 ```text
 http://localhost:8080/api/bulletins
 ```
 
-### Create an Item
+### 7.2. Create an Item
 
 - **POST** `/api/bulletins`
 
 - Creates a new bulletin item.
 
-### Read Multiple Items
+### 7.3. Read Multiple Items
 
 - **GET** `/api/bulletins`
 
 - Returns all bulletin items.
 
-### Read One Item
+### 7.4. Read One Item
 
 - **GET** `/api/bulletins/:id`
 
 - Returns one bulletin item by id.
 
-### Update an Item
+### 7.5. Update an Item
 
 - **PATCH** `/api/bulletins/id/:id`
 
 - Updates one bulletin item by id.
 
-### Delete an Item
+### 7.6. Delete an Item
 
 - **DELETE** `/api/bulletins/id/:id`
 
@@ -202,7 +202,7 @@ These API routes were created to satisfy the CRUD requirements of the assignment
 
 ---
 
-## Reflection
+## 8. Reflection
 
 This project helped us apply the main ideas from the MERN stack in a more complete way. We were able to work with a React frontend, an Express backend, MongoDB for storing data, and API routes that connect everything together.
 
