@@ -149,7 +149,7 @@ router.get("/categories", async (req, res) => {
 
 // Get one bulletin by _id
 // TO DO: Currently not used, should be used for viewing a single bulletin in detail (frontend)
-router.get("/id/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
     try {
         const idParam = req.params.id;
 

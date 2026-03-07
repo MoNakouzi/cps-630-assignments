@@ -4,7 +4,7 @@ const bulletins = [
         title: "Free Breakfast Club",
         category: "Events",
         message:
-            "Free coffee and donuts will be available in the Science Lounge from 9:00 AM to 11:00 AM. First come, first served.",
+            "Free coffee and donuts will be available in the Science Lounge from 9:00 AM to 11:00 AM.",
         author: "Science Department",
         date: "2026-02-14",
     },

@@ -1,6 +1,6 @@
 export default function Home() {
     return (
-        <div className="min-h-screen bg-linear-to-br from-violet-50 via-white to-violet-100 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-linear-to-br from-violet-200 via-violet-100 to-violet-300 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
             <div className="max-w-2xl w-full text-center space-y-12 my-26">
                 <div className="space-y-4">
                     <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-transparent bg-clip-text bg-linear-to-r from-violet-600 to-violet-900">
