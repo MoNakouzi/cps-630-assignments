@@ -2,21 +2,32 @@
 
 ## Overview
 
-Campus Bulletin Board is a MERN-style web application built for the CPS 630 CRUD Application assignment. The project allows users to browse campus announcements, view bulletin details, and update bulletin entries through a React front end and a Node.js, Express, MongoDB back end. The idea behind the application is to provide a simple space where students can share and manage bulletin posts such as news, events, reminders, and general announcements.
+This project is a MERN style web application created for the CPS 630 CRUD Application assignment. Our app is called **Campus Bulletin Board**, and the main idea behind it is to give students a simple place to post and manage campus related announcements. These can include club events, reminders, general notices, and other updates that students may want to share.
 
-The application follows the assignment's required split structure with a separate `frontend` folder and `backend` folder. The back end runs on **localhost:8080** using **Node.js + Express**, connects to **MongoDB** through **Mongoose**, and seeds test data automatically when the collection is empty. The front end runs on **localhost:5173** using **React + Vite** and includes multiple pages, including a home page, bulletin list page, bulletin detail page, edit page, and about page.
+The project follows the folder structure used in the labs, with a separate **frontend** and **backend**. The backend was built using **Node.js** and **Express**, connects to **MongoDB** using **Mongoose**, and runs on **localhost:8080** using `npm run start`. The frontend was built using **React + Vite** and runs on **localhost:5173** using `npm run dev`.
 
-This project matches the main assignment requirements in the following ways:
+Overall this project was designed to match the assignment requirements as closely as possible. It includes a working backend connected to MongoDB, a REST API with CRUD functionality, and multiple frontend views for interacting with the data.
 
-- It uses **Node.js and Express** for the back end.
-- It connects to a **MongoDB** database using **Mongoose**.
-- It includes a startup seeding function that inserts test bulletin data when the database is empty.
-- The back end starts with **`npm run start`** on port **8080**.
-- The front end starts with **`npm run dev`** on port **5173**.
-- It provides a **REST API** with CRUD routes for creating, reading one item, reading multiple items, updating, and deleting.
-- It includes **at least three web views** on the front end.
+In the future, this project could be improved by adding user authentication, image uploads, better styling, and a more complete frontend flow for all CRUD actions.
 
-In the future, this project could be extended by adding authentication, richer bulletin categories, image uploads, pagination, and a fully completed front end flow for create and delete actions.
+---
+
+## How This Project Meets the Assignment Requirements
+
+This project matches the assignment requirements in the following ways:
+
+- The **back end** was developed using **Node.js and Express**.
+- The application **connects to MongoDB** using **Mongoose**.
+- A **test data seeding function** is included so that when the database or collection is empty, sample data is added automatically on startup.
+- The **backend starts with `npm run start`** and runs on **localhost:8080**.
+- The **frontend starts with `npm run dev`** and runs on **localhost:5173**.
+- The project includes a **REST API** that supports the required CRUD operations:
+  - Create one item
+  - Read one item
+  - Read multiple items
+  - Update one item
+  - Delete one item
+- The frontend includes **at least 3 different views**, such as the home page, bulletin list page, bulletin details page, edit page, and about page.
 
 ---
 
@@ -43,7 +54,7 @@ g45-a2/
 
 ## Technologies Used
 
-### Back End
+### Backend
 
 - Node.js
 - Express
@@ -51,7 +62,7 @@ g45-a2/
 - Mongoose
 - CORS
 
-### Front End
+### Frontend
 
 - React
 - Vite
@@ -64,30 +75,21 @@ g45-a2/
 
 ### 1. Start MongoDB
 
-Before starting the app, make sure the MongoDB service is running.
+Before running the project, make sure your MongoDB service is started.
 
 #### macOS
 
-If MongoDB was installed with Homebrew:
+If MongoDB was installed using Homebrew, run:
 
 ```bash
 brew services start mongodb-community
 ```
 
-
-#### Windows
-
-Open **Command Prompt as Administrator** and run:
-
-```bash
-net start MongoDB
-```
-
 ---
 
-### 2. Start the Back End
+### 2. Start the Backend
 
-Open a terminal and move into the backend folder:
+Open a terminal and go into the backend folder:
 
 ```bash
 cd backend
@@ -95,23 +97,19 @@ npm install
 npm run start
 ```
 
-The back end runs on:
+The backend should start on:
 
 ```text
 http://localhost:8080
 ```
 
-When the server starts:
-
-- it connects to MongoDB at `mongodb://localhost:27017/bulletinDB`
-- it checks whether the bulletins collection is empty
-- if empty, it inserts the provided seed data automatically
+When the backend starts, it connects to MongoDB and checks whether the collection already has data. If it is empty, the project inserts test data automatically.
 
 ---
 
-### 3. Start the Front End
+### 3. Start the Frontend
 
-Open a second terminal and move into the frontend folder:
+Open a second terminal and go into the frontend folder:
 
 ```bash
 cd frontend
@@ -119,7 +117,7 @@ npm install
 npm run dev
 ```
 
-The front end runs on:
+The frontend should start on:
 
 ```text
 http://localhost:5173
@@ -127,26 +125,27 @@ http://localhost:5173
 
 ---
 
-## How to Use the Application
+## How to Use the Project
 
 1. Start MongoDB.
-2. Start the back end with `npm run start` inside the `backend` folder.
-3. Start the front end with `npm run dev` inside the `frontend` folder.
+2. Start the backend using `npm run start` inside the `backend` folder.
+3. Start the frontend using `npm run dev` inside the `frontend` folder.
 4. Open `http://localhost:5173` in your browser.
-5. Navigate through the application pages.
-6. View the bulletin board, open an individual bulletin, and edit an existing bulletin.
+5. Use the different pages to browse, view, and update bulletin posts.
 
-Current main front end pages include:
+Main views currently included in the project are:
 
-- **Home**: landing page for the application
-- **Bulletin List**: displays all bulletin items and supports category and search filtering
-- **Bulletin Detail**: displays a single bulletin item
-- **Edit Bulletin**: allows an existing bulletin to be updated
-- **About**: lists the group members and project context
+- **Home Page**
+- **Bulletin List Page**
+- **Bulletin Detail Page**
+- **Edit Bulletin Page**
+- **About Page**
+
+These views help demonstrate the required frontend structure and show how the frontend connects to the backend API.
 
 ---
 
-## REST API Documentation
+## REST API Summary
 
 Base URL:
 
@@ -154,114 +153,46 @@ Base URL:
 http://localhost:8080/api/bulletins
 ```
 
-### Create a Bulletin
+### Create an Item
 
 **POST** `/api/bulletins`
 
-Creates a new bulletin.
+Creates a new bulletin item.
 
-Example body:
-
-```json
-{
-  "title": "Club Meeting",
-  "category": "Events",
-  "message": "Join us this Friday at 5 PM.",
-  "author": "Student Union"
-}
-```
-
-Expected response:
-
-- `201 Created` on success
-- `400 Bad Request` for invalid input
-- `500 Internal Server Error` if the server fails
-
-### Read Multiple Bulletins
+### Read Multiple Items
 
 **GET** `/api/bulletins`
 
 Returns all bulletin items.
 
-Optional query parameters:
-
-- `category`
-- `q`
-- `field`
-
-Examples:
-
-```text
-GET /api/bulletins
-GET /api/bulletins?category=Events
-GET /api/bulletins?q=club&field=title
-```
-
-Expected response:
-
-- `200 OK`
-- `500 Internal Server Error`
-
-### Read One Bulletin
+### Read One Item
 
 **GET** `/api/bulletins/:id`
 
-Returns a single bulletin by MongoDB `_id`.
+Returns one bulletin item by id.
 
-Expected response:
-
-- `200 OK`
-- `400 Bad Request` for an invalid id
-- `404 Not Found` if no bulletin exists with that id
-- `500 Internal Server Error`
-
-### Update a Bulletin
+### Update an Item
 
 **PATCH** `/api/bulletins/id/:id`
 
-Updates one bulletin by id.
+Updates one bulletin item by id.
 
-Example body:
-
-```json
-{
-  "title": "Updated Club Meeting",
-  "category": "Events",
-  "message": "The meeting has moved to Room 203.",
-  "author": "Student Union"
-}
-```
-
-Expected response:
-
-- `200 OK`
-- `400 Bad Request`
-- `404 Not Found`
-- `500 Internal Server Error`
-
-### Delete a Bulletin
+### Delete an Item
 
 **DELETE** `/api/bulletins/id/:id`
 
-Deletes one bulletin by id.
+Deletes one bulletin item by id.
 
-Expected response:
-
-- `204 No Content`
-- `400 Bad Request`
-- `404 Not Found`
-- `500 Internal Server Error`
+These API routes were created to satisfy the CRUD requirements of the assignment and connect the frontend to the database.
 
 ---
 
-
-
 ## Reflection
 
-This project demonstrates the core full stack concepts required for the assignment, especially the separation between front end and back end, database integration with MongoDB, and the use of REST API design for CRUD operations. One success in this project was building a clean backend structure with separate folders for models, routes, utilities, and seed data, which made the application easier to organize and maintain.
+This project helped us apply the main ideas from the MERN stack in a more complete way. We were able to work with a React frontend, an Express backend, MongoDB for storing data, and API routes that connect everything together.
 
-Another success was connecting the React client to the Express server and using route-based pages to display and manage bulletin data. The filtering and single-item detail views also helped make the application feel more complete and realistic.
+One of the more important parts of this assignment was making sure the backend and frontend were properly connected and that the CRUD routes worked correctly with the database. Setting up the structure and making sure requests were handled properly took some debugging, especially when testing routes and checking that MongoDB data was being returned correctly.
 
-One challenge was coordinating the front end and back end so that the routes, HTTP methods, and data structure matched correctly. Another challenge was ensuring MongoDB started correctly on the local machine before running the project. A further area for improvement is completing and polishing the dedicated create and delete front end views so that all CRUD operations are fully demonstrated through the user interface as well as through the API.
+We think one success in this project was building a clear structure that follows the format used in the labs. The project also includes multiple pages and a backend that seeds data automatically when needed, which helped make the application easier to test.
 
-Overall, this project was a useful exercise in MERN development because it brought together routing, API design, database integration, and React-based user interaction in one application.
+If we were to continue improving this project, we could finish polishing all frontend CRUD interactions, improve the overall UI, and add extra features like authentication and categories with better filtering.
