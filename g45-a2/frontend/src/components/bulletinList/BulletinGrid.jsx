@@ -25,13 +25,13 @@ export default function BulletinGrid({ bulletins }) {
 
                     <div className="mt-4 flex items-center justify-start gap-3">
                         <a
-                            href="/edit?id={b.id}"
+                            href={`/edit?id=${b.id}`}
                             className="text-xs rounded-lg bg-violet-500 px-3 py-2 text-white hover:bg-violet-700 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
                         >
                             Edit
                         </a>
                         <a
-                            href="/delete?id={b.id}"
+                            href={`/delete?id=${b.id}`}
                             className="text-xs rounded-lg bg-red-500 px-3 py-2 text-white hover:bg-red-600 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
                         >
                             Delete

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
+const mongoose = require("mongoose");
 const Bulletin = require("../models/bulletinSchema");
 const getTorontoDate = require("../utils/getDate");
 
@@ -29,7 +30,9 @@ router.post("/", async (req, res) => {
         const created = await Bulletin.create({
             title: String(newBulletin.title).trim(),
             category: String(newBulletin.category).trim(),
-            message: message ? String(message).trim() : "",
+            message: newBulletin.message
+                ? String(newBulletin.message).trim()
+                : "",
             author: String(newBulletin.author).trim(),
             date: getTorontoDate(),
         });
@@ -46,10 +49,82 @@ router.post("/", async (req, res) => {
 /******************************************************/
 /********* Defining (CRUD) API READ routes ************/
 /******************************************************/
-// Get all bulletins (HomePage)
+// Get bulletins with optional filtering by category and/or search term (in title, category, or author)
 router.get("/", async (req, res) => {
     try {
-        const bulletins = await Bulletin.find({});
+        const selectedCategory = req.query.category;
+        const searchTerm = req.query.q;
+        const field = req.query.field;
+
+        let query = {};
+
+        if (
+            selectedCategory &&
+            selectedCategory.trim().toLowerCase() !== "all"
+        ) {
+            query.category = selectedCategory.trim();
+        }
+
+        if (searchTerm && searchTerm.trim()) {
+            const trimmedField = field ? field.trim().toLowerCase() : "any";
+            const allowedFields = ["title", "category", "author", "any"];
+
+            if (!allowedFields.includes(trimmedField)) {
+                return res.status(400).json({
+                    error: "Search field must be one of: title, category, author, any",
+                });
+            }
+
+            const pattern = new RegExp(escapeRegex(searchTerm.trim()), "i");
+
+            if (trimmedField === "title") {
+                query.title = pattern;
+            } else if (trimmedField === "category") {
+                query.category = pattern;
+            } else if (trimmedField === "author") {
+                query.author = pattern;
+            } else if (trimmedField === "any") {
+                query.$or = [
+                    { author: pattern },
+                    { title: pattern },
+                    { category: pattern },
+                ];
+            }
+
+            if (
+                selectedCategory &&
+                selectedCategory.trim().toLowerCase() !== "all" &&
+                trimmedField === "category"
+            ) {
+                query = {
+                    $and: [
+                        { category: selectedCategory.trim() },
+                        { category: pattern },
+                    ],
+                };
+            }
+
+            if (
+                selectedCategory &&
+                selectedCategory.trim().toLowerCase() !== "all" &&
+                trimmedField === "any"
+            ) {
+                query = {
+                    $and: [
+                        { category: selectedCategory.trim() },
+                        {
+                            $or: [
+                                { author: pattern },
+                                { title: pattern },
+                                { category: pattern },
+                            ],
+                        },
+                    ],
+                };
+            }
+        }
+
+        const bulletins = await Bulletin.find(query);
         return res.status(200).json(bulletins);
     } catch (err) {
         console.error("Error fetching bulletins:", err);
@@ -61,31 +136,15 @@ router.get("/", async (req, res) => {
 
 // Gets all unique categories
 router.get("/categories", async (req, res) => {
-  try {
-    const categories = await Bulletin.distinct("category");
-    return res.status(200).json(categories);
-  } catch (err) {
-    console.error("Error fetching categories:", err);
-    return res
-      .status(500)
-      .json({ error: "Server error fetching categories" });
-  }
-});
-
-//Gets Post by category
-router.get("/:category", async (req, res) => {
-  try {
-    const { category } = req.params;
-
-    const bulletins = await Bulletin.find({ category: category });
-
-    return res.status(200).json(bulletins);
-  } catch (err) {
-    console.error("Error fetching bulletins by category:", err);
-    return res
-      .status(500)
-      .json({ error: "Server error fetching bulletins by category" });
-  }
+    try {
+        const categories = await Bulletin.distinct("category");
+        return res.status(200).json(categories);
+    } catch (err) {
+        console.error("Error fetching categories:", err);
+        return res
+            .status(500)
+            .json({ error: "Server error fetching categories" });
+    }
 });
 
 // Get one bulletin by _id
@@ -111,71 +170,6 @@ router.get("/id/:id", async (req, res) => {
             .status(500)
             .json({ error: "Server error fetching bulletin" });
     }
-});
-
-// Search bulletins by author (case-insensitive exact match)
-// TO DO: Currently not used, should do a search system (frontend)
-router.get("/search", async (req, res) => {
-  try {
-    const searchTerm = req.query.q;
-    const field = req.query.field;
-
-    if (!searchTerm || !searchTerm.trim()) {
-      return res.status(400).json({
-        error: "Search query parameter 'q' is required",
-      });
-    }
-
-    if (!field || !field.trim()) {
-      return res.status(400).json({
-        error: "Search field parameter 'field' is required",
-      });
-    }
-
-    const trimmedField = field.trim().toLowerCase();
-    const allowedFields = ["title", "category", "author", "any"];
-
-    if (!allowedFields.includes(trimmedField)) {
-      return res.status(400).json({
-        error: "Search field must be one of: title, category, author, any",
-      });
-    }
-
-    const pattern = new RegExp(escapeRegex(searchTerm.trim()), "i");
-
-    let query = {};
-
-    if (trimmedField === "title") {
-      query = { title: pattern };
-    } else if (trimmedField === "category") {
-      query = { category: pattern };
-    } else if (trimmedField === "author") {
-      query = { author: pattern };
-    } else if (trimmedField === "any") {
-      query = {
-        $or: [
-          { author: pattern },
-          { title: pattern },
-          { category: pattern },
-        ],
-      };
-    }
-
-    const bulletins = await Bulletin.find(query);
-
-    if (bulletins.length === 0) {
-      return res.status(404).json({
-        error: "No matching bulletins found",
-      });
-    }
-
-    return res.status(200).json(bulletins);
-  } catch (err) {
-    console.error("Error searching bulletins:", err);
-    return res.status(500).json({
-      error: "Server error searching bulletins",
-    });
-  }
 });
 
 /********************************************************/
