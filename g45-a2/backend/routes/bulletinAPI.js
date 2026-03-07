@@ -235,8 +235,7 @@ router.patch("/id/:id", async (req, res) => {
 /********* Defining (CRUD) API DELETE routes ************/
 /********************************************************/
 // Delete a bulletin by ID
-
-router.delete("/id/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
     try {
         const idParam = req.params.id;
 
