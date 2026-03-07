@@ -1,9 +1,9 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import API_BASE_URL from "../config";
-import BulletinNotFound from "../components/bulletinDetail/BulletinNotFound";
+import BulletinNotFound from "../components/general/BulletinNotFound";
 import DeleteBulletinError from "../components/deleteBulletin/DeleteBulletinError";
-import DeleteBulletinLoading from "../components/deleteBulletin/DeleteBulletinLoading";
+import BulletinLoading from "../components/general/BulletinLoading";
 import DeleteBulletinPreview from "../components/deleteBulletin/DeleteBulletinPreview";
 import DeleteBulletinActions from "../components/deleteBulletin/DeleteBulletinActions";
 
@@ -104,7 +104,7 @@ export default function DeleteBulletin() {
 
                 <DeleteBulletinError error={error} />
 
-                {bulletin === null && !error && <DeleteBulletinLoading />}
+                {bulletin === null && !error && <BulletinLoading />}
 
                 {bulletin && <DeleteBulletinPreview bulletin={bulletin} />}
 

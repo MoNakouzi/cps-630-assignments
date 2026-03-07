@@ -81,7 +81,8 @@ export default function BulletinList() {
                         No bulletins found
                     </h3>
                     <p className="mt-1 text-sm text-violet-600">
-                        Please adjust your search value to see more results.
+                        We either have no data or your search didn't match any
+                        bulletins. Try adjusting your filters or search terms.
                     </p>
                 </section>
             )}

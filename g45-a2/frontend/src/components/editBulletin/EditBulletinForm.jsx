@@ -101,7 +101,7 @@ export default function EditBulletinForm({
                         <label className="block text-sm font-semibold text-slate-800 mb-2">
                             Last Updated Date
                         </label>
-                        <div className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-slate-600">
+                        <div className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-slate-600 hover:cursor-not-allowed">
                             {formData.date}
                         </div>
                         <p className="mt-1 text-xs text-slate-500">

@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import API_BASE_URL from "../config";
-import BulletinNotFound from "../components/bulletinDetail/BulletinNotFound";
+import BulletinNotFound from "../components/general/BulletinNotFound";
 import BulletinLoading from "../components/general/BulletinLoading";
 
 export default function BulletinDetail() {
