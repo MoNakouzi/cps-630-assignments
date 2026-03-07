@@ -6,7 +6,7 @@ This project is a MERN style web application created for the CPS 630 CRUD Applic
 
 The project follows the folder structure used in the labs, with a separate **frontend** and **backend**. The backend was built using **Node.js** and **Express**, connects to **MongoDB** using **Mongoose**, and runs on **localhost:8080** using `npm run start`. The frontend was built using **React + Vite** and runs on **localhost:5173** using `npm run dev`.
 
-Overall this project was designed to match the assignment requirements as closely as possible. It includes a working backend connected to MongoDB, a REST API with CRUD functionality, and multiple frontend views for interacting with the data.
+Overall, this project includes a working backend connected to MongoDB, a REST API with CRUD functionality, and multiple frontend views for interacting with the data, as per the assignment requirements.
 
 In the future, this project could be improved by adding user authentication, image uploads, better styling, and a more complete frontend flow for all CRUD actions.
 
@@ -16,18 +16,26 @@ In the future, this project could be improved by adding user authentication, ima
 
 This project matches the assignment requirements in the following ways:
 
-- The **back end** was developed using **Node.js and Express**.
+- The **backend** was developed using **Node.js and Express**.
 - The application **connects to MongoDB** using **Mongoose**.
 - A **test data seeding function** is included so that when the database or collection is empty, sample data is added automatically on startup.
-- The **backend starts with `npm run start`** and runs on **localhost:8080**.
-- The **frontend starts with `npm run dev`** and runs on **localhost:5173**.
+- The **backend** starts with `npm run start` and runs on **localhost:8080**.
+- The **frontend** starts with `npm run dev` and runs on **localhost:5173**.
 - The project includes a **REST API** that supports the required CRUD operations:
   - Create one item
   - Read one item
   - Read multiple items
   - Update one item
   - Delete one item
-- The frontend includes **at least 3 different views**, such as the home page, bulletin list page, bulletin details page, edit page, and about page.
+- The frontend includes **7 different views**:
+  - Home page
+  - About Us page
+  - Bulletin Board page
+  - Bulletin Details page
+  - Edit a Bulletin page
+  - Delete a Bulletin page
+  - Add a Bulletin page
+  - Not Found page
 
 ---
 
@@ -40,11 +48,13 @@ g45-a2/
 │   ├── models/
 │   ├── routes/
 │   ├── utils/
+│   ├── package-lock.json
 │   ├── package.json
 │   └── server.js
 ├── frontend/
 │   ├── public/
 │   ├── src/
+│   ├── package-lock.json
 │   ├── package.json
 │   └── vite.config.js
 └── README.md
@@ -76,6 +86,9 @@ g45-a2/
 ### 1. Start MongoDB
 
 Before running the project, make sure your MongoDB service is started.
+
+#### Windows
+On Windows, it's automatically started.
 
 #### macOS
 
@@ -133,13 +146,15 @@ http://localhost:5173
 4. Open `http://localhost:5173` in your browser.
 5. Use the different pages to browse, view, and update bulletin posts.
 
-Main views currently included in the project are:
-
-- **Home Page**
-- **Bulletin List Page**
-- **Bulletin Detail Page**
-- **Edit Bulletin Page**
-- **About Page**
+**Main views** currently included in the project are:
+  - Home
+  - About Us
+  - Bulletin Board
+  - Bulletin Details
+  - Edit a Bulletin
+  - Delete a Bulletin
+  - Add a Bulletin
+  - Not Found 
 
 These views help demonstrate the required frontend structure and show how the frontend connects to the backend API.
 
@@ -155,33 +170,33 @@ http://localhost:8080/api/bulletins
 
 ### Create an Item
 
-**POST** `/api/bulletins`
+- **POST** `/api/bulletins`
 
-Creates a new bulletin item.
+- Creates a new bulletin item.
 
 ### Read Multiple Items
 
-**GET** `/api/bulletins`
+- **GET** `/api/bulletins`
 
-Returns all bulletin items.
+- Returns all bulletin items.
 
 ### Read One Item
 
-**GET** `/api/bulletins/:id`
+- **GET** `/api/bulletins/:id`
 
-Returns one bulletin item by id.
+- Returns one bulletin item by id.
 
 ### Update an Item
 
-**PATCH** `/api/bulletins/id/:id`
+- **PATCH** `/api/bulletins/id/:id`
 
-Updates one bulletin item by id.
+- Updates one bulletin item by id.
 
 ### Delete an Item
 
-**DELETE** `/api/bulletins/id/:id`
+- **DELETE** `/api/bulletins/id/:id`
 
-Deletes one bulletin item by id.
+- Deletes one bulletin item by id.
 
 These API routes were created to satisfy the CRUD requirements of the assignment and connect the frontend to the database.
 
