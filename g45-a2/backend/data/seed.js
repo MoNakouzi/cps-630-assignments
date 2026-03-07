@@ -47,8 +47,7 @@ const bulletins = [
         author: "CS Student",
         date: "2026-02-14",
     },
-
-        {
+    {
         title: "Campus WiFi Upgrade",
         category: "Announcements",
         message:
@@ -75,7 +74,7 @@ const bulletins = [
         title: "Looking for Project Teammates",
         category: "Academics",
         message:
-            "I'm looking for 2–3 teammates for the CPS 721 final project. Ideally someone comfortable with Node.js, MongoDB, and React. If you're interested please email me or message me on the course Discord server.",
+            "I'm looking for 2-3 teammates for the CPS 721 final project. Ideally someone comfortable with Node.js, MongoDB, and React. If you're interested please email me or message me on the course Discord server.",
         author: "Anonymous Student",
         date: "2026-03-03",
     },
