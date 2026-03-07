@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API_BASE_URL from "../config";
-import EditBulletinLoading from "../components/editBulletin/EditBulletinLoading";
+import BulletinLoading from "../components/general/BulletinLoading";
 import EditBulletinErrorState from "../components/editBulletin/EditBulletinErrorState";
 import EditBulletinHeader from "../components/editBulletin/EditBulletinHeader";
 import EditBulletinForm from "../components/editBulletin/EditBulletinForm";
@@ -43,27 +43,13 @@ export default function EditBulletin() {
 	const [saving, setSaving] = useState(false);
 	const [error, setError] = useState("");
 
-	const formattedDate = useMemo(() => {
-		if (!formData.date) {
-			return "Unavailable";
-		}
-
-		const dateValue = new Date(formData.date);
-
-		if (Number.isNaN(dateValue.getTime())) {
-			return formData.date;
-		}
-
-		return dateValue.toLocaleString();
-	}, [formData.date]);
-
 	useEffect(() => {
 		async function fetchBulletinDetails() {
 			setLoading(true);
 			setError("");
 
 			try {
-				// Backend defines GET /bulletins/:id for single bulletin fetch.
+				// Retrieve bulletin by ID to pre-fill the form
 				const response = await fetch(`${API_BASE_URL}/api/bulletins/${id}`);
 
 				if (!response.ok) {
@@ -117,7 +103,7 @@ export default function EditBulletin() {
 		setError("");
 
 		try {
-			const response = await fetch(`${API_BASE_URL}/api/bulletins/id/${id}`, {
+			const response = await fetch(`${API_BASE_URL}/api/bulletins/${id}`, {
 				method: "PATCH",
 				headers: {
 					"Content-Type": "application/json",
@@ -138,7 +124,7 @@ export default function EditBulletin() {
 	}
 
 	if (loading) {
-		return <EditBulletinLoading />;
+		return <BulletinLoading />;
 	}
 
 	if (error && !saving && !formData.title) {
@@ -158,7 +144,6 @@ export default function EditBulletin() {
 					formData={formData}
 					error={error}
 					saving={saving}
-					formattedDate={formattedDate}
 					onInputChange={handleInputChange}
 					onSubmit={handleSubmit}
 					onCancel={() => navigate(`/bulletins/${id}`)}

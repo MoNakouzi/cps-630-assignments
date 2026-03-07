@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import API_BASE_URL from "../config";
 import BulletinNotFound from "../components/bulletinDetail/BulletinNotFound";
+import BulletinLoading from "../components/general/BulletinLoading";
 
 export default function BulletinDetail() {
     const { id } = useParams();
@@ -46,15 +47,10 @@ export default function BulletinDetail() {
         return <BulletinNotFound id={id} />;
     }
 
+    // If found and bulletin is null, it means we're still loading
     if (!bulletin) {
         return (
-            <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-                <div className="rounded-3xl border border-violet-200 bg-white p-6 shadow-sm">
-                    <p className="text-sm text-slate-500">
-                        Loading bulletin...
-                    </p>
-                </div>
-            </section>
+            <BulletinLoading />
         );
     }
 

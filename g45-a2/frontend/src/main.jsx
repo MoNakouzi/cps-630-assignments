@@ -6,6 +6,7 @@ import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(
     <StrictMode>
+        {/* Browser Router wraps the entire application since Routes is used within App */}
         <BrowserRouter>
             <App />
         </BrowserRouter>

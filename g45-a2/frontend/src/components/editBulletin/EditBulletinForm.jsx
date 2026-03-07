@@ -1,10 +1,7 @@
-import { IoSaveOutline } from "react-icons/io5";
-
 export default function EditBulletinForm({
     formData,
     error,
     saving,
-    formattedDate,
     onInputChange,
     onSubmit,
     onCancel,
@@ -21,11 +18,11 @@ export default function EditBulletinForm({
             </div>
 
             <form onSubmit={onSubmit} className="py-6 px-8 sm:px-10 space-y-6">
-                {error ? (
+                {error && (
                     <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 text-sm">
                         {error}
                     </div>
-                ) : null}
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="sm:col-span-2">
@@ -105,7 +102,7 @@ export default function EditBulletinForm({
                             Last Updated Date
                         </label>
                         <div className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-slate-600">
-                            {formattedDate}
+                            {formData.date}
                         </div>
                         <p className="mt-1 text-xs text-slate-500">
                             Date is maintained by the backend and will refresh

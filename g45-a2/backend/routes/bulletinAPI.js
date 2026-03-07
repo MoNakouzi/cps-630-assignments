@@ -176,7 +176,7 @@ router.get("/:id", async (req, res) => {
 /********* Defining (CRUD) API UPDATE routes ************/
 /********************************************************/
 // Update an existing bulletin using ID
-router.patch("/id/:id", async (req, res) => {
+router.patch("/:id", async (req, res) => {
     try {
         const idParam = req.params.id;
 

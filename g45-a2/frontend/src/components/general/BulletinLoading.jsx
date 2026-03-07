@@ -1,4 +1,4 @@
-export default function EditBulletinLoading() {
+export default function BulletinLoading() {
     return (
         <section className="min-h-screen flex items-center justify-center bg-violet-50 px-4">
             <div className="w-full max-w-md rounded-2xl border border-violet-200 bg-white p-8 shadow-sm text-center">

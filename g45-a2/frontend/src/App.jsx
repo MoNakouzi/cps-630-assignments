@@ -13,8 +13,10 @@ import Footer from "./components/general/Footer.jsx";
 export default function App() {
     return (
         <div className="app bg-violet-100 min-h-screen flex flex-col">
+            {/* Navbar is placed at the top of all pages */}
             <Navbar />
             <div>
+                {/* Routing different pages */}
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/bulletins" element={<BulletinList />} />
@@ -26,6 +28,7 @@ export default function App() {
                     <Route path="*" element={<NotFound />} />
                 </Routes>
             </div>
+            {/* Footer is placed at the bottom of all pages */}
             <Footer />
         </div>
     );
