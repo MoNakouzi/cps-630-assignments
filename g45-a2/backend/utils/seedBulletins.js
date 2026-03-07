@@ -1,32 +1,73 @@
 const Bulletin = require("../models/bulletinSchema");
 const { bulletins } = require("../data/seed");
 
+function makeBulletinKey(bulletin) {
+    return [bulletin.title, bulletin.category, bulletin.author, bulletin.date]
+        .map((value) => String(value || "").trim())
+        .join("||");
+}
+
 async function addSeedData() {
     try {
-        const bulletinCount = await Bulletin.estimatedDocumentCount();
+        const existingBulletins = await Bulletin.find(
+            {},
+            "title category author date",
+        ).lean();
 
-        if (bulletinCount === 0) {
-            console.log("Database is empty. Adding initial bulletins...");
+        const existingKeys = new Set(
+            existingBulletins.map((bulletin) => makeBulletinKey(bulletin)),
+        );
 
-            for (const bulletin of bulletins) {
-                try {
-                    const newBulletin = new Bulletin(bulletin);
-                    await newBulletin.save();
-                    console.log("Bulletin added with Title: " + bulletin.title);
-                } catch (err) {
-                    console.error(
-                        "Error adding bulletin with Title: " +
-                            bulletin.title +
-                            " " +
-                            err,
-                    );
-                }
+        let inserted = 0;
+        let skipped = 0;
+
+        for (const bulletin of bulletins) {
+            const sanitized = {
+                title: String(bulletin.title || "").trim(),
+                category: String(bulletin.category || "").trim(),
+                message: bulletin.message ? String(bulletin.message).trim() : "",
+                author: String(bulletin.author || "").trim(),
+                date: String(bulletin.date || "").trim(),
+            };
+
+            if (
+                !sanitized.title ||
+                !sanitized.category ||
+                !sanitized.author ||
+                !sanitized.date
+            ) {
+                console.warn(
+                    "Skipping invalid seed bulletin (missing required field):",
+                    sanitized,
+                );
+                skipped += 1;
+                continue;
             }
-        } else {
-            console.log(
-                "Bulletins already exist in database. Not adding test bulletins.",
-            );
+
+            const key = makeBulletinKey(sanitized);
+
+            if (existingKeys.has(key)) {
+                skipped += 1;
+                continue;
+            }
+
+            try {
+                await Bulletin.create(sanitized);
+                existingKeys.add(key);
+                inserted += 1;
+                console.log("Seed bulletin added with title:", sanitized.title);
+            } catch (err) {
+                console.error(
+                    "Error adding seed bulletin with title:",
+                    sanitized.title,
+                    err,
+                );
+            }
         }
+
+        console.log(
+            `Seed sync complete. Inserted ${inserted}, skipped ${skipped}.`,
+        );
     } catch (err) {
         console.error("Error checking or seeding bulletins:", err);
     }
