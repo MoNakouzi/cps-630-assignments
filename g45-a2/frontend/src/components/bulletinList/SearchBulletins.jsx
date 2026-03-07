@@ -19,6 +19,7 @@ export default function SearchBulletins({
 
                 <div className="flex flex-col gap-3 md:flex-row text-violet-500 font-semibold">
                     <select
+                        id="search-field"
                         value={searchField}
                         onChange={(e) => onSearchFieldChange(e.target.value)}
                         className="rounded-lg min-w-24 border border-violet-200 bg-white px-3 py-2 text-sm outline-none focus:border-violet-400 md:w-3/4"

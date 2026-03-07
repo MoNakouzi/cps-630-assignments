@@ -79,12 +79,18 @@ export default function BulletinFormFields({
 
             {showDate && (
                 <div className="sm:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-slate-800">
+                    <label
+                        htmlFor="date"
+                        className="mb-2 block text-sm font-semibold text-slate-800"
+                    >
                         Last Updated Date
                     </label>
-                    <div className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-slate-600">
-                        {formData.date || "No date available"}
-                    </div>
+                    <input
+                        disabled
+                        id="date"
+                        className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-slate-600"
+                        value={formData.date || "No date available"}
+                    />
                     <p className="mt-1 text-xs text-slate-500">
                         Date is maintained by the backend and will refresh after
                         saving.

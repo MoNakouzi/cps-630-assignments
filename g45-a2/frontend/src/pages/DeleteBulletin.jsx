@@ -30,9 +30,6 @@ export default function DeleteBulletin() {
                 const response = await fetch(
                     `${API_BASE_URL}/api/bulletins/${id}`,
                 );
-                console.log(
-                    `Fetching bulletin with ID: ${id}, Response status: ${response.status}`,
-                );
 
                 if (response.status === 404) {
                     setNotFound(true);
@@ -64,10 +61,6 @@ export default function DeleteBulletin() {
                 {
                     method: "DELETE",
                 },
-            );
-
-            console.log(
-                `Deleting bulletin with ID: ${id}, Response status: ${response.status}`,
             );
 
             if (!response.ok) {
