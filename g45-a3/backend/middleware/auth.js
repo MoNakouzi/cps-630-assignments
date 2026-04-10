@@ -1,17 +1,32 @@
-// These read `x-user-id` and `x-user-role` headers to simulate authentication
+// Authentication middleware implements JWT verification to populate `req.user`.
+const jwt = require("jsonwebtoken");
 
+// Verify Authorization Bearer token; treat missing/invalid token as guest
 function attachUser(req, res, next) {
-    const userId = req.header("x-user-id");
-    const userRole = req.header("x-user-role");
+    // Check for Authorization header (case-insensitive) and verify JWT
+    const auth = req.header("authorization") || req.header("Authorization");
 
-    if (userId) {
-        req.user = {
-            id: String(userId),
-            role: userRole ? String(userRole) : "user",
-        };
-    } else {
-        req.user = null;
+    // If Authorization header is present and starts with "Bearer ", verify the token
+    if (auth && auth.toLowerCase().startsWith("bearer ")) {
+        // Extract the token part after "Bearer "
+        const token = auth.slice(7).trim();
+        try {
+            // Verify the token
+            const payload = jwt.verify(token, process.env.JWT_SECRET);
+
+            // Attach the user info (id and role) to req.user
+            req.user = { id: String(payload.id), role: payload.role || "user" };
+
+            return next();
+        } catch (err) {
+            // Invalid token is treated as unauthenticated
+            req.user = null;
+            return next();
+        }
     }
+
+    // No token present: treat request as guest (no req.user)
+    req.user = null;
 
     next();
 }

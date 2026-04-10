@@ -2,16 +2,19 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
 const User = require("../models/User");
 const Bulletin = require("../models/Bulletin");
+const RefreshToken = require("../models/RefreshToken");
 
 const { requireAdmin, requireAuth } = require("../middleware/auth");
 
 /********************************************************/
 /********* Defining (CRUD) API CREATE routes ************/
 /********************************************************/
-// Register a new user
+// (PUBLIC) Register a new user, registration issues a JWT on success
 router.post("/", async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -40,9 +43,40 @@ router.post("/", async (req, res) => {
             email: String(email).toLowerCase().trim(),
             passwordHash,
         });
-        return res
-            .status(201)
-            .json({ id: user._id, name: user.name, email: user.email });
+
+        // Issue JWT on registration
+        const token = jwt.sign(
+            { id: user._id, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: process.env.JWT_EXPIRES || "1h" },
+        );
+
+        // Create refresh token value randomly
+        const refreshTokenValue = crypto.randomBytes(48).toString("hex");
+
+        // Set expiration for refresh token (7 days default if env variable not set)
+        const refreshExpires = new Date(
+            Date.now() +
+                parseInt(
+                    process.env.REFRESH_EXPIRES_MS ||
+                        String(7 * 24 * 60 * 60 * 1000),
+                    10,
+                ),
+        );
+
+        // Store the refresh token in the database linked to the user
+        await RefreshToken.create({
+            token: refreshTokenValue,
+            user: user._id,
+            expiresAt: refreshExpires,
+        });
+
+        // Return the token and basic user info (excluding passwordHash)
+        return res.status(201).json({
+            token,
+            refreshToken: refreshTokenValue,
+            user: { id: user._id, name: user.name, email: user.email },
+        });
     } catch (err) {
         console.error("Error creating user:", err);
         return res.status(500).json({ error: "Server error creating user" });
@@ -52,7 +86,7 @@ router.post("/", async (req, res) => {
 /******************************************************/
 /********* Defining (CRUD) API READ routes ************/
 /******************************************************/
-// List all users (admin only)
+// (PRIVATE) List all users (admin only)
 router.get("/", requireAdmin, async (req, res) => {
     try {
         const users = await User.find(
@@ -66,7 +100,7 @@ router.get("/", requireAdmin, async (req, res) => {
     }
 });
 
-// Get a specific user details (admin or self)
+// (PRIVATE) Get a specific user details (admin or self)
 router.get("/:id", requireAuth, async (req, res) => {
     try {
         const idParam = req.params.id;
@@ -107,7 +141,7 @@ router.get("/:id", requireAuth, async (req, res) => {
     }
 });
 
-// List bulletins by a user (public)
+// (PUBLIC) List bulletins by a user (non-deleted only, with category info)
 router.get("/:id/bulletins", async (req, res) => {
     try {
         const idParam = req.params.id;
@@ -134,7 +168,7 @@ router.get("/:id/bulletins", async (req, res) => {
 /********************************************************/
 /********* Defining (CRUD) API UPDATE routes ************/
 /********************************************************/
-// Update user name/email (admin or self)
+// (PRIVATE) Update user name/email (admin or self)
 router.patch("/:id", requireAuth, async (req, res) => {
     try {
         const idParam = req.params.id;
@@ -194,13 +228,11 @@ router.patch("/:id", requireAuth, async (req, res) => {
             return res.status(404).json({ error: "User not found" });
         }
 
-        return res
-            .status(200)
-            .json({
-                id: updated._id,
-                name: updated.name,
-                email: updated.email,
-            });
+        return res.status(200).json({
+            id: updated._id,
+            name: updated.name,
+            email: updated.email,
+        });
     } catch (err) {
         console.error("Error updating user:", err);
         return res.status(500).json({ error: "Server error updating user" });
@@ -210,7 +242,7 @@ router.patch("/:id", requireAuth, async (req, res) => {
 /********************************************************/
 /********* Defining (CRUD) API DELETE routes ************/
 /********************************************************/
-// Change user password (only self or admin can change the password, user needs to confirm old password if not admin)
+// (PRIVATE) Change user password (only self or admin), admin can change without old password; non-admin users must provide old password
 router.post("/:id/change-password", requireAuth, async (req, res) => {
     try {
         const idParam = req.params.id;

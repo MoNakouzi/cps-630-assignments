@@ -12,17 +12,12 @@ const { requireAuth, requireAdmin } = require("../middleware/auth");
 /********************************************************/
 /********* Defining (CRUD) API CREATE routes ************/
 /********************************************************/
-// Create a new bulletin
-router.post("/", async (req, res) => {
+// (PRIVATE) Create a new bulletin (Guests cannot create bulletins; authenticated users can create bulletins with themselves as the author)
+router.post("/", requireAuth, async (req, res) => {
     try {
         const newBulletin = req.body;
 
-        if (
-            !newBulletin ||
-            !newBulletin.title ||
-            !newBulletin.category ||
-            !newBulletin.author
-        ) {
+        if (!newBulletin || !newBulletin.title || !newBulletin.category) {
             return res.status(400).json({ error: "Invalid bulletin data" });
         }
 
@@ -46,25 +41,9 @@ router.post("/", async (req, res) => {
             }
         }
 
-        // Resolve author to be the logged in user (accept objectId, name or email, should be automatically set to logged in user in frontend)
-        let authorId = null;
-        const authVal = String(newBulletin.author).trim();
-
-        // First try to find user by ID, then fallback to name or email
-        if (mongoose.Types.ObjectId.isValid(authVal)) {
-            authorId = authVal;
-        } else {
-            const user = await User.findOne({
-                $or: [{ name: authVal }, { email: authVal }],
-            });
-
-            // If user doesn't exist, throw an error (frontend should ensure user exists before allowing creation, and should default to logged in user)
-            if (user) {
-                authorId = user._id;
-            } else {
-                return res.status(400).json({ error: "Invalid author" });
-            }
-        }
+        // Creation requires authentication
+        if (!req.user)
+            return res.status(401).json({ error: "Authentication required" });
 
         const created = await Bulletin.create({
             title: String(newBulletin.title).trim(),
@@ -72,11 +51,17 @@ router.post("/", async (req, res) => {
             message: newBulletin.message
                 ? String(newBulletin.message).trim()
                 : "",
-            author: authorId,
+            // authenticated user as the author
+            author: req.user.id,
             date: new Date(),
         });
 
-        return res.status(201).json(created);
+        // Populate author and category before returning the created bulletin
+        const populated = await Bulletin.findById(created._id)
+            .populate("author", "name email")
+            .populate("category", "name slug");
+
+        return res.status(201).json(populated);
     } catch (err) {
         console.error("Error creating bulletin:", err);
         return res
@@ -88,7 +73,8 @@ router.post("/", async (req, res) => {
 /******************************************************/
 /********* Defining (CRUD) API READ routes ************/
 /******************************************************/
-// Get bulletins with optional filtering by category and/or search term (in title, category, or author)
+// (PUBLIC) Get bulletins with optional filtering by category / search (in title, category, or author)
+// Supports optional pagination through `page` and `limit` query params
 router.get("/", async (req, res) => {
     try {
         const selectedCategory = req.query.category;
@@ -199,12 +185,48 @@ router.get("/", async (req, res) => {
         // exclude soft-deleted
         query.isDeleted = false;
 
-        // Populate author and category fields for better frontend display (only name and email for author, name and slug for category)
+        // Guests (non-authenticated users) only see public
+        if (!req.user) {
+            query.visibility = "public";
+        } else if (req.user.role !== "admin") {
+            // non-admin authenticated users see public OR authored by user
+            query = {
+                $and: [
+                    query,
+                    {
+                        $or: [
+                            { visibility: "public" },
+                            { author: mongoose.Types.ObjectId(req.user.id) },
+                        ],
+                    },
+                ],
+            };
+
+            // Admin can see all, so no need to modify query
+        }
+
+        // Pagination support
+        const page = Math.max(1, parseInt(req.query.page || "1", 10));
+        const limit = Math.max(
+            1,
+            Math.min(100, parseInt(req.query.limit || "20", 10)),
+        );
+
+        // Calculate how many documents to skip based on the current page and limit
+        const skip = (page - 1) * limit;
+
+        // Get total count after all queries are applied
+        const total = await Bulletin.countDocuments(query);
+
+        // Find bulletins, populate author and category, sort by date descending, and apply pagination
         const bulletins = await Bulletin.find(query)
             .populate("author", "name email")
-            .populate("category", "name slug");
+            .populate("category", "name slug")
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit);
 
-        return res.status(200).json(bulletins);
+        return res.status(200).json({ data: bulletins, total, page, limit });
     } catch (err) {
         console.error("Error fetching bulletins:", err);
         return res
@@ -213,7 +235,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-// Get one bulletin by _id
+// (PUBLIC) Get one bulletin by _id, private bulletin may be visible only to the author or admin.
 router.get("/:id", async (req, res) => {
     try {
         const idParam = req.params.id;
@@ -222,13 +244,28 @@ router.get("/:id", async (req, res) => {
             return res.status(400).json({ error: "Invalid _id param" });
         }
 
-        // Populate author and category fields for better frontend display (only name and email for author, name and slug for category)
+        // Populate author and category
         const bulletin = await Bulletin.findById(idParam)
             .populate("author", "name email")
             .populate("category", "name slug");
 
-        if (!bulletin) {
+        if (!bulletin || bulletin.isDeleted) {
             return res.status(404).json({ error: "Bulletin not found" });
+        }
+
+        // If bulletin is private, only author or admin may view
+        if (bulletin.visibility === "private") {
+            if (
+                !(
+                    req.user &&
+                    (req.user.role === "admin" ||
+                        String(bulletin.author._id) === String(req.user.id))
+                )
+            ) {
+                return res
+                    .status(403)
+                    .json({ error: "Not authorized to view this bulletin" });
+            }
         }
 
         return res.status(200).json(bulletin);
@@ -240,11 +277,92 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+// (PRIVATE) Admin-only stats (counts per category, total bulletins, total per user)
+router.get("/stats", requireAdmin, async (req, res) => {
+    try {
+        const total = await Bulletin.countDocuments({});
+        const totalActive = await Bulletin.countDocuments({ isDeleted: false });
+
+        // for each category (grouped) return the count of bulletins, including categories with zero bulletins
+        const perCategory = await Category.aggregate([
+            {
+                // Join bulletins to each category on category _id = bulletin category
+                $lookup: {
+                    from: "bulletins",
+                    localField: "_id",
+                    foreignField: "category",
+                    as: "bulletins",
+                },
+            },
+            {
+                // Group by category _id and count the number of bulletins in the joined array
+                $group: {
+                    _id: {
+                        id: "$_id",
+                        name: "$name",
+                    },
+                    count: { $sum: { $size: "$bulletins" } },
+                },
+            },
+        ]);
+
+        // Flatten the perCategory results to return category id, name and count in the response
+        const flattenedPerCategory = perCategory.map((c) => ({
+            categoryId: c._id.id,
+            categoryName: c._id.name,
+            count: c.count,
+        }));
+
+        // for each author (grouped) return the count of bulletins, including authors with zero bulletins
+        const perUser = await User.aggregate([
+            {
+                // Join bulletins to each user on user _id = bulletin author
+                $lookup: {
+                    from: "bulletins",
+                    localField: "_id",
+                    foreignField: "author",
+                    as: "bulletins",
+                },
+            },
+            {
+                // Group by user _id and count the number of bulletins in the joined array
+                $group: {
+                    _id: {
+                        id: "$_id",
+                        name: "$name",
+                    },
+                    count: { $sum: { $size: "$bulletins" } },
+                },
+            },
+        ]);
+
+        // Flatten the perUser results to return user id, name and count in the response
+        const flattenedPerUser = perUser.map((u) => ({
+            userId: u._id.id,
+            userName: u._id.name,
+            count: u.count,
+        }));
+
+        // Return the stats in an object
+        return res
+            .status(200)
+            .json({
+                total,
+                totalActive,
+                perCategory: flattenedPerCategory,
+                perUser: flattenedPerUser,
+            });
+    } catch (err) {
+        console.error("Error fetching stats:", err);
+        return res.status(500).json({ error: "Server error fetching stats" });
+    }
+});
+
 /********************************************************/
 /********* Defining (CRUD) API UPDATE routes ************/
 /********************************************************/
-// Update an existing bulletin using ID
-router.patch("/:id", async (req, res) => {
+// (PRIVATE) Update an existing bulletin using ID, requires authentication (author or admin may update a bulletin)
+router.patch("/:id", requireAuth, async (req, res) => {
     try {
         const idParam = req.params.id;
 
@@ -368,19 +486,36 @@ router.patch("/:id", async (req, res) => {
         // Always update date when bulletin is edited
         updateData.date = new Date();
 
-        // Find the bulletin by ID and update with the new data, return the updated document
+        // Check authorization since only author or admin may change
+        const bulletin = await Bulletin.findById(idParam);
+        if (!bulletin)
+            return res.status(404).json({ error: "Bulletin not found" });
+        if (
+            !(
+                req.user.role === "admin" ||
+                String(bulletin.author) === String(req.user.id)
+            )
+        ) {
+            return res
+                .status(403)
+                .json({ error: "Not authorized to update this bulletin" });
+        }
+
+        // If attempting to change author and not admin, reject
+        if (updateData.author && req.user.role !== "admin") {
+            return res
+                .status(403)
+                .json({ error: "Only admin may change author" });
+        }
+
+        // Apply update
         const updated = await Bulletin.findByIdAndUpdate(
             idParam,
             { $set: updateData },
             { new: true, runValidators: true },
         )
-            // Populate author and category fields for better frontend display (only name and email for author, name and slug for category)
             .populate("author", "name email")
             .populate("category", "name slug");
-
-        if (!updated) {
-            return res.status(404).json({ error: "Bulletin not found" });
-        }
 
         return res.status(200).json(updated);
     } catch (err) {
@@ -391,10 +526,7 @@ router.patch("/:id", async (req, res) => {
     }
 });
 
-/********************************************************/
-/********* Defining (CRUD) API DELETE routes ************/
-/********************************************************/
-// Soft-delete a bulletin (admin)
+// (PRIVATE) Soft-delete a bulletin, requires authentication (only the author or an admin may soft-delete)
 router.post("/:id/soft-delete", requireAuth, async (req, res) => {
     try {
         const idParam = req.params.id;
@@ -435,7 +567,7 @@ router.post("/:id/soft-delete", requireAuth, async (req, res) => {
     }
 });
 
-// Restore a soft-deleted bulletin (admin only)
+// (PRIVATE) Restore a soft-deleted bulletin (admin only)
 router.post("/:id/restore", requireAdmin, async (req, res) => {
     try {
         const idParam = req.params.id;
@@ -463,7 +595,10 @@ router.post("/:id/restore", requireAdmin, async (req, res) => {
     }
 });
 
-// Permanently delete a bulletin (admin only), only allow if already soft-deleted
+/********************************************************/
+/********* Defining (CRUD) API DELETE routes ************/
+/********************************************************/
+// (PRIVATE) Permanently delete a bulletin, admin only (only allowed if bulletin already soft-deleted)
 router.delete("/:id", requireAdmin, async (req, res) => {
     try {
         const idParam = req.params.id;
@@ -494,62 +629,6 @@ router.delete("/:id", requireAdmin, async (req, res) => {
         return res
             .status(500)
             .json({ error: "Server error deleting bulletin" });
-    }
-});
-
-// Admin-only stats (counts per category, total bulletins, total per user)
-router.get("/stats", requireAdmin, async (req, res) => {
-    try {
-        const total = await Bulletin.countDocuments({});
-        const totalActive = await Bulletin.countDocuments({ isDeleted: false });
-
-        // for each category (grouped) return the count of bulletins, including categories with zero bulletins
-        const perCategory = await Category.aggregate([
-            {
-                // Join bulletins to each category on category _id = bulletin category
-                $lookup: {
-                    from: "bulletins",
-                    localField: "_id",
-                    foreignField: "category",
-                    as: "bulletins",
-                },
-            },
-            {
-                // Group by category _id and count the number of bulletins in the joined array
-                $group: {
-                    _id: "$_id",
-                    count: { $sum: { $size: "$bulletins" } },
-                },
-            },
-        ]);
-
-        // for each author (grouped) return the count of bulletins, including authors with zero bulletins
-        const perUser = await User.aggregate([
-            {
-                // Join bulletins to each user on user _id = bulletin author
-                $lookup: {
-                    from: "bulletins",
-                    localField: "_id",
-                    foreignField: "author",
-                    as: "bulletins",
-                },
-            },
-            {
-                // Group by user _id and count the number of bulletins in the joined array
-                $group: {
-                    _id: "$_id",
-                    count: { $sum: { $size: "$bulletins" } },
-                },
-            },
-        ]);
-
-        // Return the stats in an object
-        return res
-            .status(200)
-            .json({ total, totalActive, perCategory, perUser });
-    } catch (err) {
-        console.error("Error fetching stats:", err);
-        return res.status(500).json({ error: "Server error fetching stats" });
     }
 });
 

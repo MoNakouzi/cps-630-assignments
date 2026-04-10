@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
@@ -6,6 +7,7 @@ const connectDB = require("./utils/db");
 const addSeedData = require("./utils/seedBulletins");
 
 // Routes
+const authRouter = require("./routes/auth");
 const bulletinsRouter = require("./routes/bulletin");
 const categoriesRouter = require("./routes/categories");
 const usersRouter = require("./routes/users");
@@ -16,7 +18,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Attach a simple user object from headers (placeholder for JWT)
+// Attach user info from JWT (guest if no token provided)
 const { attachUser } = require("./middleware/auth");
 app.use(attachUser);
 
@@ -25,6 +27,7 @@ connectDB();
 addSeedData();
 
 // Routes
+app.use("/api/auth", authRouter);
 app.use("/api/bulletins", bulletinsRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/users", usersRouter);

@@ -1,10 +1,15 @@
+// Import bcrypt for hashing passwords
+const bcrypt = require("bcrypt");
+
 const Bulletin = require("../models/Bulletin");
 const User = require("../models/User");
 const Category = require("../models/Category");
-const { bulletins } = require("../data/seed");
+const seedData = require("../data/seed");
 
-// Import bcrypt for hashing passwords
-const bcrypt = require("bcrypt");
+// seedData exports categories, users, and bulletins
+const bulletins = seedData.bulletins || [];
+const seedCategories = seedData.categories || [];
+const seedUsers = seedData.users || [];
 
 // Seed data helper creates users, categories, and bulletins if empty.
 async function addSeedData() {
@@ -21,28 +26,15 @@ async function addSeedData() {
 
         console.log("Database is empty. Adding initial seed data...");
 
-        // Create categories and map category names to their ObjectIds for linking to bulletins
-        const categoryNames = [];
-
-        for (const bulletin of bulletins) {
-            const name = (bulletin.category || "").trim();
-
-            // Skip empty category names
-            if (!name) {
-                continue;
-            }
-
-            // If the category name is not already in our list, add it
-            if (!categoryNames.includes(name)) {
-                categoryNames.push(name);
-            }
-        }
-
+        // Create categories
         const categoryMap = {};
+        const categoriesToCreate = seedCategories;
 
-        for (const name of categoryNames) {
-            // Create a clean slug (lowercase and hyphens, no special chars)
-            const slug = name
+        // For each category name in seedCategories
+        for (const name of categoriesToCreate) {
+            
+            // Generate slug from name (e.g., "Events" -> "events")
+            const slug = String(name)
                 .toLowerCase()
                 .trim()
                 .replace(/\s+/g, "-")
@@ -61,29 +53,16 @@ async function addSeedData() {
             categoryMap[name] = cat._id;
         }
 
-        // Create users (authors) and map author names to their ObjectIds
-        const authorNames = [];
-
-        for (const bulletin of bulletins) {
-            const name = (bulletin.author || "").trim();
-
-            // Skip empty author names
-            if (!name) {
-                continue;
-            }
-
-            // Add only if not already in the list
-            if (!authorNames.includes(name)) {
-                authorNames.push(name);
-            }
-        }
-
+        // Create users
         const userMap = {};
+        const usersToCreate = seedUsers;
 
-        for (const name of authorNames) {
-            // Create a placeholder email from the author's name
+        // For each user name in seedUsers
+        for (const name of usersToCreate) {
+
+            // Generate email from name (e.g., "John Doe" -> "john.doe@group45.ca")
             const emailLocal =
-                name
+                String(name)
                     .toLowerCase()
                     .trim()
                     .replace(/\s+/g, ".")
@@ -94,7 +73,7 @@ async function addSeedData() {
             // Hash a placeholder password for seed users
             const passwordHash = await bcrypt.hash("seed-user", 10);
 
-            // Try to find user by email (since email should be unique)
+            // Try to find user by email (since email is unique)
             let user = await User.findOne({ email });
 
             // If the user does not exist, create it
@@ -141,6 +120,7 @@ async function addSeedData() {
                     message: b.message || "",
                     author: authorId,
                     date: b.date ? new Date(b.date) : new Date(),
+                    visibility: b.visibility || "public",
                 };
 
                 const newBulletin = new Bulletin(bulletinData);

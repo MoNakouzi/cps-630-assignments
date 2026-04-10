@@ -10,7 +10,7 @@ const { requireAdmin } = require("../middleware/auth");
 /********************************************************/
 /********* Defining (CRUD) API CREATE routes ************/
 /********************************************************/
-// Create a new category (admin only for now)
+// (PRIVATE) Create a new category (admin only)
 router.post("/", requireAdmin, async (req, res) => {
     try {
         const { name, description } = req.body;
@@ -50,7 +50,7 @@ router.post("/", requireAdmin, async (req, res) => {
 /******************************************************/
 /********* Defining (CRUD) API READ routes ************/
 /******************************************************/
-// Return all categories (name, slug, description) sorted by name
+// (PUBLIC) Return all categories (name, slug, description) sorted by name
 router.get("/", async (req, res) => {
     try {
         const cats = await Category.find(
@@ -70,7 +70,7 @@ router.get("/", async (req, res) => {
 /********************************************************/
 /********* Defining (CRUD) API UPDATE routes ************/
 /********************************************************/
-// Update category name/description (admin only)
+// (PRIVATE) Update category name/description (admin only)
 router.patch("/:id", requireAdmin, async (req, res) => {
     try {
         const idParam = req.params.id;
@@ -137,7 +137,7 @@ router.patch("/:id", requireAdmin, async (req, res) => {
 /********************************************************/
 /********* Defining (CRUD) API DELETE routes ************/
 /********************************************************/
-// Delete category if no bulletins reference it (admin only)
+// (PRIVATE) Delete category if no bulletins reference it (admin only)
 router.delete("/:id", requireAdmin, async (req, res) => {
     try {
         const idParam = req.params.id;

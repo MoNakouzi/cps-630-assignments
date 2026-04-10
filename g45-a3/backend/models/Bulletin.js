@@ -35,6 +35,12 @@ const BulletinSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    // Visibility controls whether bulletin is public or private to the author
+    visibility: {
+        type: String,
+        enum: ["public", "private"],
+        default: "public",
+    },
 });
 
 // Add common indexes to improve query performance
