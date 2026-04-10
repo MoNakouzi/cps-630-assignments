@@ -8,7 +8,7 @@ const addSeedData = require("./utils/seedBulletins");
 
 // Routes
 const authRouter = require("./routes/auth");
-const bulletinsRouter = require("./routes/bulletin");
+const bulletinsRouter = require("./routes/bulletins");
 const categoriesRouter = require("./routes/categories");
 const usersRouter = require("./routes/users");
 
@@ -27,10 +27,10 @@ connectDB();
 addSeedData();
 
 // Routes
-app.use("/api/auth", authRouter);
 app.use("/api/bulletins", bulletinsRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/auth", authRouter);
 
 // Health check route
 app.get("/health", (req, res) => {

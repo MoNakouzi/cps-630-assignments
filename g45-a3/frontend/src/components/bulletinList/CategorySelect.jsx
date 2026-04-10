@@ -9,9 +9,18 @@ export default function CategorySelect({selectedCategory, onCategoryChange}) {
     useEffect(() => {
         async function fetchCategories() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/bulletins/categories`);
+                // Fetch categories from the categories API
+                const response = await fetch(`${API_BASE_URL}/api/categories`);
+
+                // If the response is not OK, throw an error to be caught below
+                if (!response.ok) { 
+                    throw new Error("Failed to fetch categories");
+                }
+
+                // Parse the JSON response to get the category data
                 const categories = await response.json();
-                setCategories(categories);
+                // backend returns array of category objects; map to names for this select
+                setCategories(categories.map((c) => c.name));
             } catch (error) {
                 console.error("Error fetching categories:", error);
             }

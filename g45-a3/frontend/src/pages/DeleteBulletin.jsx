@@ -1,5 +1,7 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+
 import API_BASE_URL from "../config";
 import BulletinNotFound from "../components/general/BulletinNotFound";
 import DeleteBulletinError from "../components/deleteBulletin/DeleteBulletinError";
@@ -8,13 +10,18 @@ import DeleteBulletinPreview from "../components/deleteBulletin/DeleteBulletinPr
 import DeleteBulletinActions from "../components/deleteBulletin/DeleteBulletinActions";
 
 export default function DeleteBulletin() {
+    // Get the bulletin ID from the URL parameters
     const { id } = useParams();
     const navigate = useNavigate();
 
+    // State variables to manage bulletin data, loading state, not found state, deletion state, and error messages
     const [bulletin, setBulletin] = useState(null);
     const [notFound, setNotFound] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState("");
+
+    // Get the authFetch function from AuthContext to perform authenticated API requests
+    const { authFetch } = useAuth();
 
     // reset scroll position to top since delete box is on top
     useEffect(() => {
@@ -56,7 +63,8 @@ export default function DeleteBulletin() {
         try {
             setIsDeleting(true);
 
-            const response = await fetch(
+            // Send DELETE request to delete the bulletin using authFetch for authentication
+            const response = await authFetch(
                 `${API_BASE_URL}/api/bulletins/${id}`,
                 {
                     method: "DELETE",

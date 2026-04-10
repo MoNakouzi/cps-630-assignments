@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../config";
 import BulletinForm from "../components/bulletinForm/BulletinForm";
+import { useAuth } from "../context/AuthContext";
 
-function validateBulletinInput(formData) {
+function validateBulletinInput(formData, currentUser = null) {
     const errors = [];
 
     if (typeof formData.title !== "string" || !formData.title.trim()) {
@@ -14,8 +15,9 @@ function validateBulletinInput(formData) {
         errors.push("Category is required.");
     }
 
-    if (typeof formData.author !== "string" || !formData.author.trim()) {
-        errors.push("Author is required.");
+    // If user is not authenticated, they are not allowed to create a bulletin (guests cannot create bulletins)
+    if (!currentUser) {
+        errors.push("You must be logged in to create a bulletin.");
     }
 
     if (typeof formData.message !== "string") {
@@ -37,13 +39,11 @@ export default function CreateBulletin() {
     });
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
+    const { authFetch, user } = useAuth();
 
     function handleInputChange(event) {
         const { name, value } = event.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     }
 
     async function handleSubmit(event) {
@@ -56,10 +56,10 @@ export default function CreateBulletin() {
                 typeof formData.message === "string"
                     ? formData.message.trim()
                     : "",
-            author: formData.author.trim(),
+            // server will set authenticated user as author
         };
 
-        const validationErrors = validateBulletinInput(trimmedData);
+        const validationErrors = validateBulletinInput(trimmedData, user);
 
         if (validationErrors.length > 0) {
             setError(validationErrors.join(" "));
@@ -70,11 +70,10 @@ export default function CreateBulletin() {
         setError("");
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/bulletins`, {
+            // Use authFetch to send POST request with auth headers
+            const response = await authFetch(`${API_BASE_URL}/api/bulletins`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(trimmedData),
             });
 
@@ -108,6 +107,7 @@ export default function CreateBulletin() {
                     submittingLabel="Creating..."
                     showDate={false}
                     cancelLabel="Back to Bulletins"
+                    currentUser={user}
                 />
             </div>
         </div>

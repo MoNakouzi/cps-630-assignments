@@ -9,6 +9,30 @@ const User = require("../models/User");
 const escapeRegex = require("../utils/escapeRegex");
 const { requireAuth, requireAdmin } = require("../middleware/auth");
 
+// Helper to flatten populated author/category into fields
+function flattenBulletin(doc) {
+    if (!doc) return doc;
+    const obj = typeof doc.toObject === "function" ? doc.toObject() : { ...doc };
+
+    // move category fields to category_<field>
+    if (obj.category && typeof obj.category === "object") {
+        for (const [k, v] of Object.entries(obj.category)) {
+            obj[`category_${k}`] = v;
+        }
+        delete obj.category;
+    }
+
+    // move author fields to author_<field>
+    if (obj.author && typeof obj.author === "object") {
+        for (const [k, v] of Object.entries(obj.author)) {
+            obj[`author_${k}`] = v;
+        }
+        delete obj.author;
+    }
+
+    return obj;
+}
+
 /********************************************************/
 /********* Defining (CRUD) API CREATE routes ************/
 /********************************************************/
@@ -58,10 +82,10 @@ router.post("/", requireAuth, async (req, res) => {
 
         // Populate author and category before returning the created bulletin
         const populated = await Bulletin.findById(created._id)
-            .populate("author", "name email")
-            .populate("category", "name slug");
+            .populate("author", "name email role")
+            .populate("category", "name slug description");
 
-        return res.status(201).json(populated);
+        return res.status(201).json(flattenBulletin(populated));
     } catch (err) {
         console.error("Error creating bulletin:", err);
         return res
@@ -220,13 +244,15 @@ router.get("/", async (req, res) => {
 
         // Find bulletins, populate author and category, sort by date descending, and apply pagination
         const bulletins = await Bulletin.find(query)
-            .populate("author", "name email")
-            .populate("category", "name slug")
+            .populate("author", "name email role")
+            .populate("category", "name slug description")
             .sort({ date: -1 })
             .skip(skip)
             .limit(limit);
 
-        return res.status(200).json({ data: bulletins, total, page, limit });
+        const flat = bulletins.map(flattenBulletin);
+
+        return res.status(200).json({ data: flat, total, page, limit });
     } catch (err) {
         console.error("Error fetching bulletins:", err);
         return res
@@ -246,8 +272,8 @@ router.get("/:id", async (req, res) => {
 
         // Populate author and category
         const bulletin = await Bulletin.findById(idParam)
-            .populate("author", "name email")
-            .populate("category", "name slug");
+            .populate("author", "name email role")
+            .populate("category", "name slug description");
 
         if (!bulletin || bulletin.isDeleted) {
             return res.status(404).json({ error: "Bulletin not found" });
@@ -259,7 +285,7 @@ router.get("/:id", async (req, res) => {
                 !(
                     req.user &&
                     (req.user.role === "admin" ||
-                        String(bulletin.author._id) === String(req.user.id))
+                        String(bulletin.author?._id || bulletin.author) === String(req.user.id))
                 )
             ) {
                 return res
@@ -268,7 +294,7 @@ router.get("/:id", async (req, res) => {
             }
         }
 
-        return res.status(200).json(bulletin);
+        return res.status(200).json(flattenBulletin(bulletin));
     } catch (err) {
         console.error("Error fetching bulletin by _id:", err);
         return res
@@ -514,10 +540,10 @@ router.patch("/:id", requireAuth, async (req, res) => {
             { $set: updateData },
             { new: true, runValidators: true },
         )
-            .populate("author", "name email")
-            .populate("category", "name slug");
+            .populate("author", "name email role")
+            .populate("category", "name slug description");
 
-        return res.status(200).json(updated);
+        return res.status(200).json(flattenBulletin(updated));
     } catch (err) {
         console.error("Error updating bulletin:", err);
         return res

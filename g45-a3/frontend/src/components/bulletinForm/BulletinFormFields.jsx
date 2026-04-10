@@ -1,7 +1,10 @@
+import formatDateToToronto from "../../utils/formatDate";
+
 export default function BulletinFormFields({
     formData,
     onInputChange,
     showDate = false,
+    currentUser = null,
 }) {
     return (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -46,17 +49,28 @@ export default function BulletinFormFields({
                     htmlFor="author"
                     className="mb-2 block text-sm font-semibold text-slate-800"
                 >
-                    Author <span className="text-red-600">*</span>
+                    Author {currentUser ? <span className="text-xs text-slate-500">(your account)</span> : <span className="text-red-600">*</span>}
                 </label>
-                <input
-                    id="author"
-                    name="author"
-                    type="text"
-                    value={formData.author}
-                    onChange={onInputChange}
-                    className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-200"
-                    placeholder="Author name"
-                />
+                {currentUser ? (
+                    <input
+                        id="author"
+                        name="author"
+                        type="text"
+                        value={currentUser.name || formData.author}
+                        disabled
+                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-slate-600 cursor-not-allowed"
+                    />
+                ) : (
+                    <input
+                        id="author"
+                        name="author"
+                        type="text"
+                        value={formData.author}
+                        onChange={onInputChange}
+                        className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-200"
+                        placeholder="Author name"
+                    />
+                )}
             </div>
 
             <div className="sm:col-span-2">
@@ -89,7 +103,7 @@ export default function BulletinFormFields({
                         disabled
                         id="date"
                         className="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-slate-600"
-                        value={formData.date || "No date available"}
+                        value={formatDateToToronto(formData.date) || "No date available"}
                     />
                     <p className="mt-1 text-xs text-slate-500">
                         Date is maintained by the backend and will refresh after

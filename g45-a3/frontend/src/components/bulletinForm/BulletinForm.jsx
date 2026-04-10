@@ -15,6 +15,7 @@ export default function BulletinForm({
     submittingLabel,
     showDate = false,
     cancelLabel = "Cancel",
+    currentUser = null,
 }) {
     return (
         <BulletinFormShell
@@ -27,6 +28,7 @@ export default function BulletinForm({
                     formData={formData}
                     onInputChange={onInputChange}
                     showDate={showDate}
+                    currentUser={currentUser}
                 />
 
                 <BulletinFormActions

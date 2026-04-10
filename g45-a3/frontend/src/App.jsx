@@ -9,6 +9,9 @@ import About from "./pages/About.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Navbar from "./components/general/Navbar.jsx";
 import Footer from "./components/general/Footer.jsx";
+import RequireAuth from "./components/general/RequireAuth";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
 
 export default function App() {
     return (
@@ -21,9 +24,33 @@ export default function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/bulletins" element={<BulletinBoard />} />
                     <Route path="/bulletins/:id" element={<BulletinDetail />} />
-                    <Route path="/create" element={<CreateBulletin />} />
-                    <Route path="/edit/:id" element={<EditBulletin />} />
-                    <Route path="/delete/:id" element={<DeleteBulletin />} />
+                    {/* Require authentication for create, edit, and delete routes */}
+                    <Route
+                        path="/create"
+                        element={
+                            <RequireAuth>
+                                <CreateBulletin />
+                            </RequireAuth>
+                        }
+                    />
+                    <Route
+                        path="/edit/:id"
+                        element={
+                            <RequireAuth>
+                                <EditBulletin />
+                            </RequireAuth>
+                        }
+                    />
+                    <Route
+                        path="/delete/:id"
+                        element={
+                            <RequireAuth>
+                                <DeleteBulletin />
+                            </RequireAuth>
+                        }
+                    />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                     <Route path="/about" element={<About />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>

@@ -4,7 +4,7 @@ export default function About() {
             <section className="rounded-xl border border-violet-200 bg-white p-6 shadow-sm">
                 <h1 className="text-3xl font-bold text-slate-900">About Us</h1>
                 <p className="mt-2 text-sm text-slate-600">
-                    CPS 630 - Assignment 2: CRUD Application
+                    CPS 630 - Assignment 3: The Final Submission
                 </p>
 
                 <div className="mt-6">

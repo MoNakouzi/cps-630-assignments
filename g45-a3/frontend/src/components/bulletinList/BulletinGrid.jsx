@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import formatDateToToronto from "../../utils/formatDate";
 
 export default function BulletinGrid({ bulletins }) {
     return (
@@ -14,7 +15,7 @@ export default function BulletinGrid({ bulletins }) {
                         </h2>
 
                         <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">
-                            {b.category}
+                            {b.category_name}
                         </span>
                     </div>
 
@@ -35,11 +36,11 @@ export default function BulletinGrid({ bulletins }) {
                         <div>
                             <span className="">Created By:</span>{" "}
                             <span className="font-medium text-slate-600">
-                                {b.author}
+                                {b.author_name}
                             </span>
                         </div>
 
-                        <p>{b.date}</p>
+                        <p>{formatDateToToronto(b.date) || "No date"}</p>
                     </div>
 
                     <div className="mt-4 flex items-center justify-start gap-3">

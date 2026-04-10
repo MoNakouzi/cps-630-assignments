@@ -40,16 +40,19 @@ export default function SearchBulletins({
                     />
                 </div>
 
-                {searchField === "any" && (
-                    <div className="flex flex-col gap-3 my-2 md:flex-row justify-between">
-                        <p className="text-xs text-violet-600 font-semibold">
-                            Searching across: title, category, and author.
-                        </p>
-                        <p className="text-xs text-gray-500 font-medium">
-                            Note: search results are case-insensitive and allows partial (not fuzzy) matches.
-                        </p>
-                    </div>
-                )}
+                <div className="flex flex-col gap-3 my-2 md:flex-row justify-between">
+                    <p className="text-xs text-violet-600 font-semibold">
+                        Searching across:{" "}
+                        {searchField === "any"
+                            ? "title, category, and author"
+                            : searchField}
+                        .
+                    </p>
+                    <p className="text-xs text-gray-500 font-medium">
+                        Note: search results are case-insensitive and allows
+                        partial (not fuzzy) matches.
+                    </p>
+                </div>
             </div>
         </section>
     );

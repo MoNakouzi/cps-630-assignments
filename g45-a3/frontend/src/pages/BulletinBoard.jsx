@@ -37,8 +37,11 @@ export default function BulletinBoard() {
                     throw new Error("Failed to fetch bulletins");
                 }
 
-                const bulletins = await response.json();
-                setBulletins(bulletins);
+                const result = await response.json();
+
+                // API returns { data: [...], total, page, limit }
+                const data = result.data ?? result; 
+                setBulletins(data);
             } catch (error) {
                 console.error("Error fetching bulletins:", error);
                 setBulletins([]);

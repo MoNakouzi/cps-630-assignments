@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
 import API_BASE_URL from "../config";
+import formatDateToToronto from "../utils/formatDate";
 import BulletinLoading from "../components/general/BulletinLoading";
 import EditBulletinErrorState from "../components/editBulletin/EditBulletinErrorState";
 import BulletinForm from "../components/bulletinForm/BulletinForm";
 
-function validateBulletinInput(formData) {
+function validateBulletinInput(formData, currentUser = null) {
     const errors = [];
 
     if (typeof formData.title !== "string" || !formData.title.trim()) {
@@ -16,8 +19,9 @@ function validateBulletinInput(formData) {
         errors.push("Category is required.");
     }
 
-    if (typeof formData.author !== "string" || !formData.author.trim()) {
-        errors.push("Author is required.");
+    // If user is not logged in, they cannot edit a bulletin
+    if (!currentUser) {
+        errors.push("You must be logged in to edit a bulletin.");
     }
 
     if (typeof formData.message !== "string") {
@@ -42,6 +46,9 @@ export default function EditBulletin() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
+    // Get authFetch and current user from AuthContext to perform authenticated requests and access user info
+    const { authFetch, user } = useAuth();
+
     useEffect(() => {
         async function fetchBulletinDetails() {
             setLoading(true);
@@ -58,12 +65,14 @@ export default function EditBulletin() {
                 }
 
                 const bulletin = await response.json();
+
+                // Pre-fill form with existing bulletin data
                 setFormData({
                     title: bulletin.title || "",
-                    category: bulletin.category || "",
+                    category: bulletin.category_name || "",
                     message: bulletin.message || "",
-                    author: bulletin.author || "",
-                    date: bulletin.date || "",
+                    author: bulletin.author_name || "",
+                    date: formatDateToToronto(bulletin.date) || "",
                 });
             } catch (fetchError) {
                 setError(fetchError.message || "Could not fetch bulletin.");
@@ -93,10 +102,10 @@ export default function EditBulletin() {
                 typeof formData.message === "string"
                     ? formData.message.trim()
                     : "",
-            author: formData.author.trim(),
+            // We don't submit author field from client; server enforces author unless admin
         };
 
-        const validationErrors = validateBulletinInput(trimmedData);
+        const validationErrors = validateBulletinInput(trimmedData, user);
 
         if (validationErrors.length > 0) {
             alert(validationErrors.join("\n"));
@@ -107,7 +116,8 @@ export default function EditBulletin() {
         setError("");
 
         try {
-            const response = await fetch(
+            // Send PATCH request to update the bulletin with the new data using authFetch for authentication
+            const response = await authFetch(
                 `${API_BASE_URL}/api/bulletins/${id}`,
                 {
                     method: "PATCH",
@@ -160,6 +170,7 @@ export default function EditBulletin() {
                     submittingLabel="Saving..."
                     showDate={true}
                     cancelLabel="Back to Details"
+                    currentUser={user}
                 />
             </div>
         </div>

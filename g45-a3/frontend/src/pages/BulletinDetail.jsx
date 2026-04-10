@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import API_BASE_URL from "../config";
+import formatDateToToronto from "../utils/formatDate";
 import BulletinNotFound from "../components/general/BulletinNotFound";
 import BulletinLoading from "../components/general/BulletinLoading";
 
@@ -45,9 +46,7 @@ export default function BulletinDetail() {
 
     // If found and bulletin is null, it means we're still loading
     if (!bulletin) {
-        return (
-            <BulletinLoading />
-        );
+        return <BulletinLoading />;
     }
 
     return (
@@ -67,7 +66,7 @@ export default function BulletinDetail() {
 
                         <div className="shrink-0">
                             <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                {bulletin.category}
+                                {bulletin.category_name}
                             </span>
                         </div>
                     </div>
@@ -77,10 +76,29 @@ export default function BulletinDetail() {
                     <dl className="divide-y divide-slate-100">
                         <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
                             <dt className="text-sm font-semibold text-slate-500">
+                                Bulletin ID
+                            </dt>
+                            <dd className="break-all text-sm text-slate-700">
+                                {bulletin._id}
+                            </dd>
+                        </div>
+
+                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
+                            <dt className="text-sm font-semibold text-slate-500">
                                 Created By
                             </dt>
                             <dd className="text-sm text-slate-900">
-                                {bulletin.author || "Unknown"}
+                                {bulletin.author_name || "Unknown"}
+                            </dd>
+                        </div>
+
+                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
+                            <dt className="text-sm font-semibold text-slate-500">
+                                Date Created
+                            </dt>
+                            <dd className="text-sm text-slate-900">
+                                {formatDateToToronto(bulletin.date) ||
+                                    "No date available"}
                             </dd>
                         </div>
 
@@ -89,25 +107,7 @@ export default function BulletinDetail() {
                                 Category
                             </dt>
                             <dd className="text-sm text-slate-900">
-                                {bulletin.category || "Uncategorized"}
-                            </dd>
-                        </div>
-
-                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
-                            <dt className="text-sm font-semibold text-slate-500">
-                                Date
-                            </dt>
-                            <dd className="text-sm text-slate-900">
-                                {bulletin.date || "No date available"}
-                            </dd>
-                        </div>
-
-                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
-                            <dt className="text-sm font-semibold text-slate-500">
-                                Bulletin ID
-                            </dt>
-                            <dd className="break-all text-sm text-slate-700">
-                                {bulletin._id}
+                                {bulletin.category_name || "Uncategorized"}
                             </dd>
                         </div>
 
