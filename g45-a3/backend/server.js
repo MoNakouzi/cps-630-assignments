@@ -6,7 +6,9 @@ const connectDB = require("./utils/db");
 const addSeedData = require("./utils/seedBulletins");
 
 // Routes
-const bulletinsRouter = require("./routes/bulletinAPI");
+const bulletinsRouter = require("./routes/bulletin");
+const categoriesRouter = require("./routes/categories");
+const usersRouter = require("./routes/users");
 
 const app = express();
 
@@ -14,12 +16,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Attach a simple user object from headers (placeholder for JWT)
+const { attachUser } = require("./middleware/auth");
+app.use(attachUser);
+
 // Connect DB + seed
 connectDB();
 addSeedData();
 
 // Routes
 app.use("/api/bulletins", bulletinsRouter);
+app.use("/api/categories", categoriesRouter);
+app.use("/api/users", usersRouter);
 
 // Health check route
 app.get("/health", (req, res) => {

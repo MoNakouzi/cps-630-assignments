@@ -94,13 +94,6 @@ const bulletins = [
         date: "2026-03-05",
     },
     {
-        title: "",
-        category: "Testing",
-        message: "Testing an empty title field.",
-        author: "System Test",
-        date: "2026-03-06",
-    },
-    {
         title: "Edge Case Characters !@#$%^&*()",
         category: "Testing",
         message:

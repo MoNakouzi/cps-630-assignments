@@ -1,13 +1,16 @@
 const mongoose = require("mongoose");
+// Load environment variables from .env when present
+require("dotenv").config();
 
-const DATABASE_URL = "localhost";
-const DATABASE_PORT = 27017;
-const DATABASE_NAME = "bulletinDB";
-
-const dbURL = `mongodb://${DATABASE_URL}:${DATABASE_PORT}/${DATABASE_NAME}`;
+// try to get full MONGODB_URL from environment, fall back to localhost
+const dbURL = process.env.MONGODB_URL || "mongodb://localhost:27017/bulletinDB";
 
 function connectDB() {
-    mongoose.connect(dbURL);
+    mongoose.connect(dbURL).catch((err) => {
+        // Catch any initial connection errors
+        console.error("MongoDB initial connection error:", err);
+    });
+
     const db = mongoose.connection;
 
     db.on("error", function (e) {
