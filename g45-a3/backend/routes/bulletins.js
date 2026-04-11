@@ -70,6 +70,11 @@ router.post("/", requireAuth, async (req, res) => {
         if (!req.user)
             return res.status(401).json({ error: "Authentication required" });
 
+        const visibilityVal =
+            newBulletin && newBulletin.visibility === "private"
+                ? "private"
+                : "public";
+
         const created = await Bulletin.create({
             title: String(newBulletin.title).trim(),
             category: categoryId,
@@ -79,6 +84,7 @@ router.post("/", requireAuth, async (req, res) => {
             // authenticated user as the author
             author: req.user.id,
             date: new Date(),
+            visibility: visibilityVal,
         });
 
         // Populate author and category before returning the created bulletin
@@ -359,6 +365,19 @@ router.get("/:id", async (req, res) => {
             return res.status(404).json({ error: "Bulletin not found" });
         }
 
+        // Debug logging: show who is requesting and bulletin ownership/visibility
+        try {
+            console.log("GET /api/bulletins/:id - req.user:", req.user);
+            console.log(
+                "GET /api/bulletins/:id - bulletin visibility:",
+                bulletin.visibility,
+                "author:",
+                bulletin.author?._id || bulletin.author,
+            );
+        } catch (e) {
+            // ignore logging errors
+        }
+
         // If bulletin is private, only author or admin may view
         if (bulletin.visibility === "private") {
             if (
@@ -369,6 +388,14 @@ router.get("/:id", async (req, res) => {
                             String(req.user.id))
                 )
             ) {
+                console.log(
+                    "GET /api/bulletins/:id - access denied",
+                    "req.user=",
+                    req.user,
+                    "bulletinAuthor=",
+                    bulletin.author?._id || bulletin.author,
+                );
+
                 return res
                     .status(403)
                     .json({ error: "Not authorized to view this bulletin" });
@@ -501,6 +528,15 @@ router.patch("/:id", requireAuth, async (req, res) => {
                 }
             }
         }
+
+            // Handle visibility explicitly if present
+            if (Object.prototype.hasOwnProperty.call(req.body, "visibility")) {
+                const vis = String(req.body.visibility).trim();
+                if (vis !== "public" && vis !== "private") {
+                    return res.status(400).json({ error: "Invalid visibility value" });
+                }
+                updateData.visibility = vis;
+            }
 
         // Do not allow empty update requests
         if (Object.keys(updateData).length === 0) {

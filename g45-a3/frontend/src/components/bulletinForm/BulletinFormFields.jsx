@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import formatDateToToronto from "../../utils/formatDate";
+import API_BASE_URL from "../../config";
 
 export default function BulletinFormFields({
     formData,
@@ -6,6 +8,23 @@ export default function BulletinFormFields({
     showDate = false,
     currentUser = null,
 }) {
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        let mounted = true;
+        (async function load() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/categories`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (mounted) setCategories(data);
+            } catch (e) {
+                // ignore load errors here; form will still work with manual entry
+                console.warn("Could not load categories:", e);
+            }
+        })();
+        return () => (mounted = false);
+    }, []);
     return (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
@@ -33,15 +52,23 @@ export default function BulletinFormFields({
                 >
                     Category <span className="text-red-600">*</span>
                 </label>
-                <input
+                <select
                     id="category"
                     name="category"
-                    type="text"
-                    value={formData.category}
+                    value={formData.category || ""}
                     onChange={onInputChange}
                     className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-200"
-                    placeholder="e.g., General"
-                />
+                >
+                    <option value="" disabled>
+                        Select a category
+                    </option>
+                    {categories.map((cat) => (
+                        <option key={cat._id} value={cat._id}>
+                            {cat.name}
+                        </option>
+                    ))}
+                </select>
+                <p className="mt-1 text-xs text-slate-500">Choose a category from the list.</p>
             </div>
 
             <div className="sm:col-span-2">

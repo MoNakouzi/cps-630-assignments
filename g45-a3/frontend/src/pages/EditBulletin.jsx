@@ -87,7 +87,8 @@ export default function EditBulletin() {
                 // Pre-fill form with existing bulletin data
                 setFormData({
                     title: bulletin.title || "",
-                    category: bulletin.category_name || "",
+                    category:
+                        bulletin.category__id || bulletin.category_id || bulletin.category || "",
                     message: bulletin.message || "",
                     author: bulletin.author_name || "",
                     date: formatDateToToronto(bulletin.date) || "",

@@ -9,7 +9,7 @@ import BulletinLoading from "../components/general/BulletinLoading";
 export default function BulletinDetail() {
     const { id } = useParams();
 
-    const { user } = useAuth();
+    const { user, authFetch } = useAuth();
 
     function isOwner(bulletin) {
         if (!user) return false;
@@ -30,9 +30,9 @@ export default function BulletinDetail() {
             try {
                 setNotFound(false);
 
-                const response = await fetch(
-                    `${API_BASE_URL}/api/bulletins/${id}`,
-                );
+                // Use authFetch when available so the Authorization header is sent
+                const fetcher = authFetch || fetch;
+                const response = await fetcher(`${API_BASE_URL}/api/bulletins/${id}`);
 
                 if (response.status === 404) {
                     setNotFound(true);
