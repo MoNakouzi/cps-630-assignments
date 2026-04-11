@@ -2,8 +2,10 @@ import { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 
 import { useAuth } from "../../context/AuthContext";
-import ProfileMenu from "./ProfileMenu";
-import MobileMenu from "./MobileMenu";
+import { FiUser } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+
 
 export default function Navbar() {
     // Get the current user and logout function from AuthContext to display user info and handle logout
@@ -15,15 +17,6 @@ export default function Navbar() {
         { name: "Bulletin Board", href: "/bulletins" },
         { name: "About", href: "/about" },
     ];
-
-    // Defining admin-specific nav items that will only be shown to users with the admin role
-    const adminItems = [
-        { name: "Admin Dashboard", href: "/admin" },
-        { name: "Categories", href: "/admin/categories" },
-        { name: "Users", href: "/admin/users" },
-    ];
-
-    const [open, setOpen] = useState(false);
 
     return (
         <header className="border-b bg-white">

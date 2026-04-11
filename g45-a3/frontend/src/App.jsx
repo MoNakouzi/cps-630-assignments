@@ -25,6 +25,8 @@ import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminCategories from "./pages/AdminCategories";
 
+
+
 export default function App() {
     return (
         <div className="app bg-violet-100 min-h-screen flex flex-col">
@@ -61,6 +63,7 @@ export default function App() {
                             </RequireAuth>
                         }
                     />
+
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route
