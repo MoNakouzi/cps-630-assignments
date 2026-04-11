@@ -6,12 +6,19 @@ let socket = null;
 export function connectChatSocket(token) {
   if (!token) return null;
 
+  if (socket && socket.auth?.token !== token) {
+    socket.disconnect();
+    socket = null;
+  }
+
   if (!socket) {
     socket = io(API_BASE_URL, {
-      auth: {
-        token,
-      },
+      auth: { token },
+      transports: ["websocket", "polling"],
     });
+  } else if (!socket.connected) {
+    socket.auth = { token };
+    socket.connect();
   }
 
   return socket;

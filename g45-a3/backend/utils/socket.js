@@ -1,9 +1,42 @@
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
+const Bulletin = require("../models/Bulletin");
+const User = require("../models/User");
+const ChatMessage = require("../models/ChatMessage");
 
 const ANNOUNCEMENTS_ROOM = "announcements-room";
 
 let ioInstance = null;
+
+function getBulletinRoomName(bulletinId) {
+  return `bulletin-${bulletinId}`;
+}
+
+async function findAccessibleBulletin(user, bulletinId) {
+  const bulletin = await Bulletin.findById(bulletinId);
+
+  if (!bulletin || bulletin.isDeleted) {
+    return null;
+  }
+
+  if (
+    bulletin.visibility === "private" &&
+    !(
+      user &&
+      (user.role === "admin" || String(bulletin.author) === String(user.id))
+    )
+  ) {
+    return null;
+  }
+
+  return bulletin;
+}
+
+function safeAck(ack, payload) {
+  if (typeof ack === "function") {
+    ack(payload);
+  }
+}
 
 function initSocket(server) {
   ioInstance = new Server(server, {
@@ -42,8 +75,99 @@ function initSocket(server) {
       message: "Connected to Announcements Room",
     });
 
-    // Users do not send messages through socket events.
-    // The server will broadcast announcements after admin posts through REST.
+    socket.on("join-bulletin-room", async ({ bulletinId }, ack) => {
+      try {
+        if (!bulletinId) {
+          return safeAck(ack, { ok: false, error: "bulletinId is required" });
+        }
+
+        const bulletin = await findAccessibleBulletin(socket.user, bulletinId);
+
+        if (!bulletin) {
+          return safeAck(ack, {
+            ok: false,
+            error: "Bulletin not found or not accessible",
+          });
+        }
+
+        const room = getBulletinRoomName(bulletinId);
+        socket.join(room);
+
+        safeAck(ack, { ok: true, room });
+      } catch (error) {
+        console.error("join-bulletin-room error:", error);
+        safeAck(ack, { ok: false, error: "Server error joining room" });
+      }
+    });
+
+    socket.on("leave-bulletin-room", ({ bulletinId }, ack) => {
+      try {
+        if (!bulletinId) {
+          return safeAck(ack, { ok: false, error: "bulletinId is required" });
+        }
+
+        const room = getBulletinRoomName(bulletinId);
+        socket.leave(room);
+
+        safeAck(ack, { ok: true, room });
+      } catch (error) {
+        console.error("leave-bulletin-room error:", error);
+        safeAck(ack, { ok: false, error: "Server error leaving room" });
+      }
+    });
+
+    socket.on("send-bulletin-message", async ({ bulletinId, text }, ack) => {
+      try {
+        const trimmedText = String(text || "").trim();
+
+        if (!bulletinId) {
+          return safeAck(ack, { ok: false, error: "bulletinId is required" });
+        }
+
+        if (!trimmedText) {
+          return safeAck(ack, { ok: false, error: "Message text is required" });
+        }
+
+        const bulletin = await findAccessibleBulletin(socket.user, bulletinId);
+
+        if (!bulletin) {
+          return safeAck(ack, {
+            ok: false,
+            error: "Bulletin no longer exists or is not accessible",
+          });
+        }
+
+        const room = getBulletinRoomName(bulletinId);
+
+        if (!socket.rooms.has(room)) {
+          return safeAck(ack, {
+            ok: false,
+            error: "You must join the bulletin room before sending messages",
+          });
+        }
+
+        const sender = await User.findById(socket.user.id);
+
+        if (!sender) {
+          return safeAck(ack, { ok: false, error: "Sender not found" });
+        }
+
+        const newMessage = await ChatMessage.create({
+          room,
+          text: trimmedText,
+          senderName: sender.name,
+          senderId: sender._id,
+          senderRole: sender.role,
+        });
+
+        ioInstance.to(room).emit("bulletin-message", newMessage);
+
+        safeAck(ack, { ok: true, message: newMessage });
+      } catch (error) {
+        console.error("send-bulletin-message error:", error);
+        safeAck(ack, { ok: false, error: "Server error sending message" });
+      }
+    });
   });
 
   return ioInstance;
@@ -61,9 +185,15 @@ function broadcastToAnnouncementsRoom(eventName, payload) {
   getIO().to(ANNOUNCEMENTS_ROOM).emit(eventName, payload);
 }
 
+function broadcastToRoom(room, eventName, payload) {
+  getIO().to(room).emit(eventName, payload);
+}
+
 module.exports = {
   initSocket,
   getIO,
   broadcastToAnnouncementsRoom,
+  broadcastToRoom,
+  getBulletinRoomName,
   ANNOUNCEMENTS_ROOM,
 };
