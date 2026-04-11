@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import AnnouncementsRoom from "../components/general/AnnouncementsRoom";
 
 export default function Home() {
     return (
@@ -46,6 +47,7 @@ export default function Home() {
                     </Link>
                 </div>
             </div>
+                  <AnnouncementsRoom />
         </div>
     );
 }

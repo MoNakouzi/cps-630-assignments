@@ -75,8 +75,13 @@ router.post("/", async (req, res) => {
         return res.status(201).json({
             token,
             refreshToken: refreshTokenValue,
-            user: { id: user._id, name: user.name, email: user.email },
-        });
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+        },
+});
     } catch (err) {
         console.error("Error creating user:", err);
         return res.status(500).json({ error: "Server error creating user" });
