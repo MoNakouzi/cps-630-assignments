@@ -59,7 +59,7 @@ export default function Register() {
 
                 {error && <p className="text-red-600 mb-3">{error}</p>}
 
-                <form onSubmit={handleSubmit} className="space-y-4 sm:min-w-md">
+                <form onSubmit={handleSubmit} className="space-y-4">
                     <InputField
                         type="text"
                         value={name}

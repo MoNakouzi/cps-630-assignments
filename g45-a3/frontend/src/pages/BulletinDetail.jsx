@@ -9,7 +9,7 @@ import BulletinChatRoom from "../components/general/BulletinChatRoom";
 
 export default function BulletinDetail() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, authFetch } = useAuth();
 
   const [bulletin, setBulletin] = useState(null);
   const [notFound, setNotFound] = useState(false);
@@ -32,11 +32,19 @@ export default function BulletinDetail() {
       try {
         setNotFound(false);
 
-                // Use authFetch when available so the Authorization header is sent
-                const fetcher = authFetch || fetch;
-                const response = await fetcher(`${API_BASE_URL}/api/bulletins/${id}`);
+        // Use authFetch when available so the Authorization header is sent
+        const fetcher = authFetch || fetch;
+        const response = await fetcher(`${API_BASE_URL}/api/bulletins/${id}`);
 
         if (response.status === 404) {
+          setNotFound(true);
+          setBulletin(null);
+          return;
+        }
+
+
+        if (response.status === 403) {
+          // Not authorized to view this bulletin
           setNotFound(true);
           setBulletin(null);
           return;
@@ -54,7 +62,7 @@ export default function BulletinDetail() {
     }
 
     fetchBulletin();
-  }, [id]);
+  }, [id, authFetch]);
 
   if (notFound) {
     return <BulletinNotFound />;
