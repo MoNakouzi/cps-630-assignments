@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import formatDateToToronto from "../../utils/formatDate";
 import { useAuth } from "../../context/AuthContext";
+import { FiLock } from "react-icons/fi";
 
 export default function BulletinGrid({ bulletins }) {
     const { user } = useAuth();
@@ -41,9 +42,17 @@ export default function BulletinGrid({ bulletins }) {
                             {b.title}
                         </h2>
 
-                        <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">
-                            {b.category_name}
-                        </span>
+                        <div className="flex items-center gap-2">
+                            {b.visibility === "private" && (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700 border border-slate-100">
+                                    <FiLock className="h-3 w-3" /> Private
+                                </span>
+                            )}
+
+                            <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-100">
+                                {b.category_name}
+                            </span>
+                        </div>
                     </div>
 
                     {/* Clamped message */}

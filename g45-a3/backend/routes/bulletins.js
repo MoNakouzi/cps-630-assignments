@@ -370,19 +370,6 @@ router.get("/:id", async (req, res) => {
             return res.status(404).json({ error: "Bulletin not found" });
         }
 
-        // Debug logging: show who is requesting and bulletin ownership/visibility
-        try {
-            console.log("GET /api/bulletins/:id - req.user:", req.user);
-            console.log(
-                "GET /api/bulletins/:id - bulletin visibility:",
-                bulletin.visibility,
-                "author:",
-                bulletin.author?._id || bulletin.author,
-            );
-        } catch (e) {
-            // ignore logging errors
-        }
-
         // If bulletin is private, only author or admin may view
         if (bulletin.visibility === "private") {
             if (
@@ -393,14 +380,6 @@ router.get("/:id", async (req, res) => {
                             String(req.user.id))
                 )
             ) {
-                console.log(
-                    "GET /api/bulletins/:id - access denied",
-                    "req.user=",
-                    req.user,
-                    "bulletinAuthor=",
-                    bulletin.author?._id || bulletin.author,
-                );
-
                 return res
                     .status(403)
                     .json({ error: "Not authorized to view this bulletin" });

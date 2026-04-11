@@ -16,12 +16,19 @@ export default function BulletinNotFound({ id }) {
                         been removed or the link may be invalid.
                     </p>
 
-                    <div className="mt-6">
+                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:gap-3">
                         <Link
                             to="/bulletins"
                             className="inline-flex rounded-lg bg-violet-500 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 transition-colors"
                         >
                             Back to Bulletins
+                        </Link>
+
+                        <Link
+                            to="/"
+                            className="mt-3 sm:mt-0 inline-flex rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                        >
+                            Return Home
                         </Link>
                     </div>
                 </div>

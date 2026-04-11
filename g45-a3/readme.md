@@ -2,83 +2,73 @@
 
 ## 1. Overview
 
-This project is a MERN style web application created for the CPS 630 CRUD Application assignment. Our app is called Campus Bulletin Board, and the main idea behind it is to give students and faculty members a simple place to post and manage campus related announcements. These can include club events, reminders, general notices, and other updates that students may want to share.
+This project is a MERN style web application created for the CPS 630 A3 assignment. Our app is called Campus Bulletin Board, and the main idea behind it is to give students and faculty members a simple place to post and manage campus related announcements. These can include club events, reminders, general notices, and other updates that students may want to share.
 
-The project follows the folder structure used in the labs, with a separate frontend (React) and backend (Express) folders. The backend was built using Node.js and Express, it connects to MongoDB using Mongoose. The frontend was built using React + Vite and Tailwind CSS for styling.
+This project meets the core MERN requirements:
 
-Overall, this project includes a working backend connected to MongoDB, a REST API with CRUD functionality, and multiple frontend views for interacting with the data, as per the assignment requirements.
+- React frontend: built with React + Vite for the UI and client-side routing.
+- Node.js + Express backend: REST API servers the frontend and performs backend logic.
+- MongoDB database: data stored with Mongoose models (`Bulletin`, `Category`, `User`).
+- REST API integration: the frontend consumes the backend API for all CRUD operations.
 
-In the future, this project could be improved by adding user authentication, image uploads, pagination, better styling, improved error handling, and a more complete frontend flow for all CRUD actions.
+Important implemented features (required by the assignment):
 
-We used GitHub and Git for version control. Commit history and work can be found here:
-[GitHub commit history link](https://github.com/MoNakouzi/cps-630-assignments/commits/main/g45-a2)
+1. Authentication
 
-## 2. How This Project Meets the Assignment Requirements
+- Multiple users can register and log in.
+- Each user has their own data (bulletins they create are associated with their account).
+- Authentication is implemented using a separate `User` Mongoose model and JWTs (access tokens and refresh tokens).
+- Protected routes exist on the backend so only authenticated users can create or modify their own bulletins; admin role has elevated privileges.
 
-This project matches the assignment requirements in the following ways:
+2. UI following Nielsen usability principles
 
-- The backend was developed using Node.js and Express.
-- The application connects to MongoDB using Mongoose.
-- A test data seeding function is included so that when the database or collection is empty, sample data is added automatically on startup.
-- The backend starts with `npm run start` and runs on `localhost:8080`.
-- The frontend starts with `npm run dev` and runs on `localhost:5173`.
-- The project includes a REST API that supports the required CRUD operations:
-  - Create one item
-  - Read one item
-  - Read multiple items
-  - Update one item
-  - Delete one item
-- The frontend includes 7 different views:
-  - Home page
-  - About Us page
-  - Bulletin Board page
-  - Bulletin Details page
-  - Edit a Bulletin page
-  - Delete a Bulletin page
-  - Add a Bulletin page
-  - Not Found page
+- Clarity: clear labels, visible status messages (toasts), and explicit error feedback.
+- Consistency: consistent buttons, spacing, headings, and form layouts across pages.
+- Feedback: actions show immediate feedback (success/error toasts, loading indicators).
+- User control: confirmations are given for strong actions (e.g., logout, delete), clear navigation and back links.
+- Minimalism: simple, readable styling using Tailwind with consistent spacing and clear primary actions.
 
-## 3. Project Structure
+3. Real-time communication
 
-```text
-g45-a2/
-├── backend/
-│   ├── data/
-│   ├── models/
-│   ├── routes/
-│   ├── utils/
-│   ├── package-lock.json
-│   ├── package.json
-│   └── server.js
-├── frontend/
-│   ├── public/
-│   ├── src/
-│   ├── package-lock.json
-│   ├── package.json
-│   └── vite.config.js
-└── README.md
+- Implemented with Socket.io on the backend and client to enable real-time features (bulletin chat rooms and a shared announcement room).
+- Users can join a bulletin room and receive live messages and notifications (they can also be part of the chat in non-announcement bulletin chats).
+
+Additional improvements in this assignment:
+
+- Improved database structure: separated `User` and `Category` collections to reduce redundancy and normalize data.
+- Role-based functionality: `admin` vs `user` roles; admin UI controls and protected admin routes.
+- Conditional UI rendering: UI elements change based on role and ownership (edit/delete buttons only visible to owners/admins).
+- Admin-specific controls available through the navbar (Admin menu) and admin pages.
+- User profile page where users can update name, email, and password.
+- Toasts for clearer feedback and a consistent loading state component.
+
+---
+
+## 2. Documentation
+
+### Requirements
+
+- Node.js
+- npm
+- MongoDB
+
+### Environment variables
+
+Create a `.env` file in the `backend` folder with at least:
+
+```
+MONGODB_URL=mongodb://localhost:27017/bulletinDB
+JWT_SECRET=t1h9SFV19OYqmm4Wdm8hXXz56WAkY0C4vggQQ1PH7Yg
+REFRESH_EXPIRES_MS=86400000
 ```
 
-## 4. How to Run the Project
+_Note:_ you can set the JWT_SECRET to anything
 
-### Step 1: Start MongoDB
+Adjust `MONGODB_URI`, if needed.
 
-Before running the project, make sure your MongoDB service is started.
+### Install & Run
 
-#### Windows
-On Windows, MongoDB is usually automatically started.
-
-#### macOS
-
-If MongoDB was installed using Homebrew, run:
-
-```bash
-brew services start mongodb-community
-```
-
-### Step 2: Start the Backend
-
-Open a terminal and go into the backend folder:
+1. Backend
 
 ```bash
 cd backend
@@ -86,18 +76,9 @@ npm install
 npm run start
 ```
 
-The backend should start on:
+The backend listens on `http://localhost:8080` by default and will seed sample data if the database collection is empty.
 
-```text
-http://localhost:8080
-```
-
-When the backend starts, it connects to MongoDB and checks whether the collection already has data. If it is empty, the project inserts test data automatically.
-
-
-### Step 3: Start the Frontend
-
-Open a second terminal and go into the frontend folder:
+2. Frontend
 
 ```bash
 cd frontend
@@ -105,80 +86,114 @@ npm install
 npm run dev
 ```
 
-The frontend should start on:
+The frontend runs on `http://localhost:5173` by default (Vite).
 
-```text
-http://localhost:5173
-```
+### How to use the application
 
+1. Register / Login
 
-1. Start MongoDB.
-2. Start the backend using `npm run start` inside the `backend` folder.
-3. Start the frontend using `npm run dev` inside the `frontend` folder.
-4. Open `http://localhost:5173` in your browser.
-5. Use the different pages to browse, view, and update bulletin posts.
+- Register a new account on the Register page (name, email, password).
+- Login returns an access token (stored in localStorage) and a refresh token.
+- After login you will see new actions (Add Bulletin, My Bulletins) and be able to create content.
 
-Main views currently included in the project are:
-  - Home
-  - About Us
-  - Bulletin Board
-  - Bulletin Details
-  - Edit a Bulletin
-  - Delete a Bulletin
-  - Add a Bulletin
-  - Not Found 
+2. Regular user capabilities
 
-These views help demonstrate the required frontend structure and show how the frontend connects to the backend API.
+- Create new bulletins (choose category, message, visibility public/private).
+- Edit or soft-delete bulletins created by same user.
+- View and update profile (name, email, password).
 
-## 5. REST API Summary
+3. Admin capabilities
 
-### 5.1. Base URL:
+- Admins can view admin dashboard and manage categories and users.
+- Admin can view all bulletins (including private), change bulletin authors, restore or permanently delete bulletins.
+- Admin UI is accessible from the Admin menu in the navbar.
+- To test:
+    - Login in with the following credentials:
+    ```
+    username: admin@group45.ca
+    password: seed-admin
+    ```
 
-```text
-http://localhost:8080/api/bulletins
-```
+4. Real-time features (Socket.io)
 
-### 5.2. Create an Item
+- Each bulletin has a chatroom; when you open a bulletin detail page you join its room.
+- Messages sent in the room are delivered to other clients in real time.
+- When a bulletin is soft-deleted or permanently removed, it is announced so users can close the chatroom.
+- To test:
+    - open the same bulletin in two browser windows (or one normal + one private window), post messages, and observe live updates.
 
-- POST `/api/bulletins`
+### API Summary (most used endpoints)
 
-- Creates a new bulletin item
-  - Uses parameteres form `req.body` to create object
-  - Validates for any missing required fields
+- POST `/api/auth/login` — login, returns access and refresh tokens
+- POST `/api/auth/refresh` — refresh access token
+- POST `/api/auth/logout` — invalidate refresh token
+- POST `/api/users` — create user (register)
+- GET `/api/bulletins` — list (filter/search/pagination supported)
+- GET `/api/bulletins/:id` — get single bulletin (private rules apply)
+- POST `/api/bulletins` — create bulletin (auth required)
+- PATCH `/api/bulletins/:id` — update bulletin (author or admin)
+- POST `/api/bulletins/:id/soft-delete` — soft-delete (author or admin)
+- POST `/api/bulletins/:id/restore` — restore (admin only)
 
-### 5.3. Read Multiple Items
+Refer to the `backend/routes` folder for more details on request/response shapes.
 
-- GET `/api/bulletins`
+---
 
-- Returns all bulletin items
-  - Filtering and searching are also implemented as part of this
+## 3. Reflection (Assignment 3)
 
-### 5.4. Read One Item
+### What was added compared to Assignment 2
 
-- GET `/api/bulletins/:id`
+This assignment extends the earlier work (Assignment 2) by adding authentication, role-based rendering, visibility controls, and real-time features:
 
-- Returns one bulletin item based on ID
+- Authentication (JWT & refresh tokens) with a `User` model and login/register flows.
+- Real-time chatrooms attached to bulletins (Socket.io integration).
+- UI/UX improvements emphasizing Nielsen usability principles (clear labels, consistent buttons, toasts for feedback, loading states).
+- Better data normalization (separate `Category` and `User` collections) and clearer admin controls.
 
-### 5.5. Update an Item
+There were a lot more features we originally wanted to implement, but with finals and everything getting busy, we had to prioritize getting the core functionality working properly. Things like restoring soft-deleted bulletins, promoting users to admins through the UI, and improving how visibility and permissions are handled were all ideas we didn’t fully get to. Even so, this was a really good assignment and helped tie together a lot of concepts from the course in a practical way.
 
-- PATCH `/api/bulletins/:id`
+### Highlights: the three required features
 
-- Updates one bulletin item based on ID
+1. Authentication
 
-### 5.6. Delete an Item
+- Implemented using `User` Mongoose model, JWT access tokens, and refresh tokens.
+- Protected routes ensure only authenticated users can create/update their own content and admins can perform elevated actions.
+- Each user has their own data: bulletins are associated with the creating user's `_id`.
 
-- DELETE `/api/bulletins/:id`
+2. Usability-focused UI
 
-- Deletes one bulletin item based on ID
+- Form labels are explicit and consistent; primary actions are prominent and secondary actions are subtle.
+- Immediate feedback via toasts for success/error; consistent loading indicators while data loads.
+- Navigation improvements (active link highlight, clear back links, and role-specific controls) make the app easier to use.
 
-These API routes were created to satisfy the CRUD requirements of the assignment and connect the frontend to the database.
+3. Real-time communication
 
-## 6. Reflection
+- Socket.io wire-up allows clients to join bulletin rooms and exchange messages in real time.
+- Room events notify clients about bulletin lifecycle changes (deleted/closed), improving the collaborative experience.
 
-This project helped us apply the main ideas from the MERN stack in a more complete way. We were able to work with a React frontend, an Express backend, MongoDB for storing data, and API routes that connect everything together.
+### Key improvements and why they matter
 
-One of the more important parts of this assignment was making sure the backend and frontend were properly connected and that the CRUD routes worked correctly with the database. Setting up the structure and making sure requests were handled properly took some debugging, especially when testing routes and checking that MongoDB data was being returned correctly.
+- Database normalization: separating categories and users reduces duplication and makes updates safer and faster.
+- Role-based rendering: the UI only shows admin features to admins; this reduces confusion and prevents accidental operations.
+- Visibility model: `public` vs `private` bulletins lets users keep drafts or personal notes private while publishing others.
+- Consistent design and error handling: toasts and loading states reduce uncertainty and make interactions predictable.
 
-On the frontend side, one big challenge was ensuring modularity and consistency in the pages. There were several components that served the same purpose with slightly different styling and structure that were used across different pages in the frontend, and ensuring those were made into reusable components was important. On the backend side, one big challenge was implementing searching and filtering. Initially, we implemented it using separate endpoints, but that overcomplicated the API calls and got much harder when we tried to implement both category filtering and searching. We were able to overcome these challenges by researching into best practices and simplifying our approach, as well as abstracting React components as best as we can.
+### Challenges faced
 
-One success in this project was building a clear structure that follows the format used in the labs. The project also includes multiple pages and a backend that seeds data automatically when needed, which helped make the application easier to test. It was a great way of putting everything we learned together.
+- Authentication was honestly one of the most frustrating parts. Getting access and refresh tokens working properly and making sure authFetch handled expiry without breaking everything took way longer than expected. A lot of trial and error with tokens not refreshing or requests failing randomly.
+
+- Managing user-specific data was also tricky. Making sure private bulletins only show for the correct user/admin sounds simple but debugging it wasn’t. There were multiple times where IDs didn’t match or the token wasn’t being sent, so things just silently failed.
+
+- Socket.io took some time to figure out. Getting users to join the correct rooms and making sure events (like delete/restore) actually showed up across different tabs required a lot of testing and small fixes.
+
+### How challenges were solved
+
+- We ended up creating an `authFetch` helper in the frontend to handle tokens in one place instead of repeating logic everywhere. That made things more stable.
+- Added server-side checks for authorization on bulletins and used a lot of console logs to confirm `req.user` was correct while debugging.
+- For Socket.io, I simplified things by creating small helper functions for room names and made sure all events followed the same pattern so it was easier to reason about.
+
+### Successes
+
+- Authentication and roles are working end-to-end. Users can register, log in, create bulletins, and admins can manage things properly.
+- Real-time features are working, with chat updates and delete events showing across clients.
+- UI improvements (toasts, consistent actions, loading states) made the app feel more complete and usable.

@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
 
 import { useAuth } from "../../context/AuthContext";
@@ -42,12 +42,18 @@ export default function Navbar() {
                 <ul className="hidden md:flex items-center gap-5 text-sm font-medium text-slate-700">
                     {navItems.map((item) => (
                         <li key={item.href}>
-                            <Link
+                            <NavLink
                                 to={item.href}
-                                className="text-violet-500 hover:text-violet-800 hover:underline transition-colors"
+                                className={({ isActive }) =>
+                                    `px-2 py-1 rounded ${
+                                        isActive
+                                            ? "bg-violet-50 text-violet-700"
+                                            : "text-slate-700 hover:text-violet-800"
+                                    } transition-colors`
+                                }
                             >
                                 {item.name}
-                            </Link>
+                            </NavLink>
                         </li>
                     ))}
 
@@ -64,7 +70,7 @@ export default function Navbar() {
                                 to="/login"
                                 className="rounded-lg bg-violet-200 px-3 py-2 text-violet-700 hover:bg-violet-300"
                             >
-                                Sign In / Register
+                                Sign In
                             </Link>
                         )}
                     </li>

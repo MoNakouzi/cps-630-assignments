@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+
 import CategorySelect from "../components/bulletinList/CategorySelect";
 import BulletinGrid from "../components/bulletinList/BulletinGrid";
 import SearchBulletins from "../components/bulletinList/SearchBulletins";
@@ -59,10 +61,11 @@ export default function BulletinBoard() {
                 </h1>
                 <p className="mt-2 text-sm text-slate-700 max-w-2xl">
                     Our campus bulletin board items! Browse through the latest
-                    announcements, events, and more. <br /><br />
-                    <strong>Note:</strong> If a bulletin was
-                    created by another user, you do not have permission to edit
-                    or delete it (unless you're an admin).
+                    announcements, events, and more. <br />
+                    <br />
+                    <strong>Note:</strong> If a bulletin was created by another
+                    user, you do not have permission to edit or delete it
+                    (unless you're an admin).
                 </p>
             </section>
 
@@ -88,8 +91,23 @@ export default function BulletinBoard() {
                     </h3>
                     <p className="mt-1 text-sm text-violet-600">
                         We either have no data or your search didn't match any
-                        bulletins. Try adjusting your filters or search terms.
+                        bulletins.
                     </p>
+
+                    <div className="mt-4">
+                        <p className="text-sm text-slate-600">
+                            You can try adjusting filters or creating a new
+                            bulletin.
+                        </p>
+                        <div className="mt-3">
+                            <Link
+                                to="/create"
+                                className="inline-flex items-center gap-2 rounded-lg bg-violet-500 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 transition-colors"
+                            >
+                                Create Bulletin
+                            </Link>
+                        </div>
+                    </div>
                 </section>
             )}
         </main>
