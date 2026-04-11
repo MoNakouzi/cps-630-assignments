@@ -12,8 +12,8 @@ export default function BulletinNotFound({ id }) {
 
                 <div className="px-6 py-6">
                     <p className="text-sm leading-6 text-slate-700">
-                        The bulletin you are looking for (ID = {id}) may have been removed
-                        or the link may be invalid.
+                        The bulletin you are looking for (ID = {id}) may have
+                        been removed or the link may be invalid.
                     </p>
 
                     <div className="mt-6">

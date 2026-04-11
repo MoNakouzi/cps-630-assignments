@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
@@ -38,12 +38,12 @@ export default function Login() {
                 </h2>
                 <p className="text-gray-400 mb-4">
                     Don't have an account?{" "}
-                    <a
-                        href="/register"
+                    <Link
+                        to="/register"
                         className="text-sm text-violet-600 hover:underline"
                     >
                         Register here
-                    </a>
+                    </Link>
                     .
                 </p>
 

@@ -36,6 +36,7 @@ export default function CreateBulletin() {
         category: "",
         message: "",
         author: "",
+        visibility: "public",
         date: "",
     });
     const [submitting, setSubmitting] = useState(false);
@@ -58,6 +59,7 @@ export default function CreateBulletin() {
                 typeof formData.message === "string"
                     ? formData.message.trim()
                     : "",
+            visibility: formData.visibility || "public",
             // server will set authenticated user as author
         };
 

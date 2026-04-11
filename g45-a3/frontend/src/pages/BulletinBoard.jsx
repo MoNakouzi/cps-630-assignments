@@ -40,7 +40,7 @@ export default function BulletinBoard() {
                 const result = await response.json();
 
                 // API returns { data: [...], total, page, limit }
-                const data = result.data ?? result; 
+                const data = result.data ?? result;
                 setBulletins(data);
             } catch (error) {
                 console.error("Error fetching bulletins:", error);

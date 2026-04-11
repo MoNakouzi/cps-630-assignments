@@ -10,7 +10,9 @@ export default function AdminDashboard() {
     useEffect(() => {
         async function loadStats() {
             try {
-                const res = await authFetch(`${API_BASE_URL}/api/bulletins/stats`);
+                const res = await authFetch(
+                    `${API_BASE_URL}/api/bulletins/stats`,
+                );
                 if (!res.ok) throw new Error("Failed to load stats");
                 const data = await res.json();
                 setStats(data);
@@ -38,7 +40,9 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="rounded-lg border bg-white p-4">
-                        <h2 className="font-semibold">Bulletins per Category</h2>
+                        <h2 className="font-semibold">
+                            Bulletins per Category
+                        </h2>
                         <ul className="mt-2 text-sm">
                             {stats.perCategory.map((c) => (
                                 <li key={String(c.categoryId)}>

@@ -44,6 +44,23 @@ export default function BulletinFormFields({
                 />
             </div>
 
+            <div className="sm:col-span-2">
+                <label htmlFor="visibility" className="mb-2 block text-sm font-semibold text-slate-800">
+                    Visibility
+                </label>
+                <select
+                    id="visibility"
+                    name="visibility"
+                    value={formData.visibility || "public"}
+                    onChange={onInputChange}
+                    className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-200"
+                >
+                    <option value="public" className="py-2">Public (visible to everyone)</option>
+                    <option value="private" className="py-2">Private (only you and admins)</option>
+                </select>
+                <p className="mt-1 text-xs text-slate-500">Private bulletins can only be viewed by you and admins.</p>
+            </div>
+
             <div>
                 <label
                     htmlFor="author"

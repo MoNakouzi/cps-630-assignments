@@ -7,8 +7,8 @@ import PasswordField from "../components/general/PasswordField";
 import { useToast } from "../context/ToastContext";
 
 export default function Profile() {
-    // Get the current user, authFetch function, and updateUser function from AuthContext
-    const { user, authFetch, updateUser } = useAuth();
+    // Get the current user, authFetch function, updateUser and logout from AuthContext
+    const { user, authFetch, updateUser, logout } = useAuth();
 
     // useNavigate hook from react-router-dom to navigate between routes
     const navigate = useNavigate();
@@ -21,7 +21,11 @@ export default function Profile() {
 
     // Local state for profile form and password change form
     const [form, setForm] = useState({ name: "", email: "" });
-    const [pwForm, setPwForm] = useState({ oldPassword: "", newPassword: "", confirm: "" });
+    const [pwForm, setPwForm] = useState({
+        oldPassword: "",
+        newPassword: "",
+        confirm: "",
+    });
 
     useEffect(() => {
         async function load() {
@@ -37,7 +41,31 @@ export default function Profile() {
             // Fetch the user's profile data to pre-fill the form
             try {
                 // Use authFetch to make a call with the authentication token included
-                const res = await authFetch(`${API_BASE_URL}/api/users/${user.id}`);
+                const res = await authFetch(
+                    `${API_BASE_URL}/api/users/${user.id}`,
+                );
+
+                // If the user record was removed or is unavailable, sign the client out
+                if (res.status === 404) {
+                    // backend indicates user not found; clear local auth and redirect
+                    await logout();
+                    toast.show(
+                        "Your account was not found, you have been signed out.",
+                        { type: "danger" },
+                    );
+                    navigate("/");
+                    return;
+                }
+
+                if (res.status === 401) {
+                    // token no longer valid; logout and redirect to login
+                    await logout();
+                    toast.show("Session expired, please sign in again.", {
+                        type: "danger",
+                    });
+                    navigate("/login");
+                    return;
+                }
 
                 if (!res.ok) {
                     throw new Error("Failed to load profile");
@@ -69,7 +97,7 @@ export default function Profile() {
         setError("");
 
         // Ensure name is not empty and email is valid before making API call
-        if (!form.name.trim()) { 
+        if (!form.name.trim()) {
             return setError("Name is required");
         }
         if (!validateEmail(form.email)) {
@@ -79,11 +107,17 @@ export default function Profile() {
         setSaving(true);
         try {
             // Make authenticated API call to update the user's profile information
-            const res = await authFetch(`${API_BASE_URL}/api/users/${user.id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: form.name.trim(), email: form.email.trim() }),
-            });
+            const res = await authFetch(
+                `${API_BASE_URL}/api/users/${user.id}`,
+                {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: form.name.trim(),
+                        email: form.email.trim(),
+                    }),
+                },
+            );
 
             // If fail, get error message from response and throw an error to be caught below
             if (!res.ok) {
@@ -99,7 +133,9 @@ export default function Profile() {
         } catch (err) {
             console.error(err);
             setError(err.message || "Could not update profile");
-            toast.show(err.message || "Could not update profile", { type: "danger" });
+            toast.show(err.message || "Could not update profile", {
+                type: "danger",
+            });
         } finally {
             setSaving(false);
         }
@@ -122,11 +158,17 @@ export default function Profile() {
 
         try {
             // Make authenticated API call to change the user's password, sending old and new passwords
-            const res = await authFetch(`${API_BASE_URL}/api/users/${user.id}/change-password`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ oldPassword: pwForm.oldPassword, newPassword: pwForm.newPassword }),
-            });
+            const res = await authFetch(
+                `${API_BASE_URL}/api/users/${user.id}/change-password`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        oldPassword: pwForm.oldPassword,
+                        newPassword: pwForm.newPassword,
+                    }),
+                },
+            );
 
             // If fail, get error message from response and throw an error to be caught below
             if (!res.ok) {
@@ -134,13 +176,14 @@ export default function Profile() {
                 throw new Error(txt || "Failed to change password");
             }
 
-            alert("Password updated successfully");
             setPwForm({ oldPassword: "", newPassword: "", confirm: "" });
             toast.show("Password updated successfully", { type: "success" });
         } catch (err) {
             console.error(err);
             setError(err.message || "Could not change password");
-            toast.show(err.message || "Could not change password", { type: "danger" });
+            toast.show(err.message || "Could not change password", {
+                type: "danger",
+            });
         } finally {
             setSaving(false);
         }
@@ -151,32 +194,70 @@ export default function Profile() {
     return (
         <main className="mx-auto min-h-screen max-w-3xl p-6 sm:p-12 fade-in">
             <div className="mx-auto bg-white rounded-lg p-6 shadow">
-                <h1 className="text-2xl font-bold mb-4">Your Profile</h1>
+                <h1 className="text-2xl font-bold mb-4">
+                    {user?.name + "'s" || "Your"} Profile
+                </h1>
+
+                <div className="mb-4">
+                    <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+                        {user?.role === "admin"
+                            ? "Admin account"
+                            : "Regular account"}
+                    </span>
+                </div>
 
                 {error && <p className="text-red-600 mb-3">{error}</p>}
 
                 <form onSubmit={handleProfileSave} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700">Name</label>
+                        <label className="block text-sm font-medium text-slate-700">
+                            Name
+                        </label>
                         <input
                             value={form.name}
-                            onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
+                            onChange={(e) =>
+                                setForm((s) => ({ ...s, name: e.target.value }))
+                            }
                             className="mt-1 w-full rounded border px-3 py-2"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700">Email</label>
+                        <label className="block text-sm font-medium text-slate-700">
+                            Email
+                        </label>
                         <input
                             value={form.email}
-                            onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
+                            onChange={(e) =>
+                                setForm((s) => ({
+                                    ...s,
+                                    email: e.target.value,
+                                }))
+                            }
                             className="mt-1 w-full rounded border px-3 py-2"
                         />
                     </div>
 
                     <div className="flex gap-3">
-                        <button disabled={saving} className="rounded bg-violet-500 px-4 py-2 text-white">{saving ? "Saving..." : "Save Profile"}</button>
-                        <button onClick={() => { setForm({ name: user.name || "", email: user.email || "" }); setError(""); }} type="button" className="rounded bg-slate-200 px-4 py-2">Reset</button>
+                        <button
+                            disabled={saving}
+                            className="rounded bg-violet-500 px-4 py-2 text-white"
+                        >
+                            {saving ? "Saving..." : "Save Profile"}
+                        </button>
+                        <button
+                            onClick={() => {
+                                setForm({
+                                    name: user.name || "",
+                                    email: user.email || "",
+                                });
+                                setError("");
+                            }}
+                            type="button"
+                            className="rounded bg-slate-200 px-4 py-2"
+                        >
+                            Reset
+                        </button>
                     </div>
                 </form>
 
@@ -189,7 +270,12 @@ export default function Profile() {
                             label="Current Password"
                             name="oldPassword"
                             value={pwForm.oldPassword}
-                            onChange={(e) => setPwForm((s) => ({ ...s, oldPassword: e.target.value }))}
+                            onChange={(e) =>
+                                setPwForm((s) => ({
+                                    ...s,
+                                    oldPassword: e.target.value,
+                                }))
+                            }
                         />
                     </div>
 
@@ -198,7 +284,12 @@ export default function Profile() {
                             label="New Password"
                             name="newPassword"
                             value={pwForm.newPassword}
-                            onChange={(e) => setPwForm((s) => ({ ...s, newPassword: e.target.value }))}
+                            onChange={(e) =>
+                                setPwForm((s) => ({
+                                    ...s,
+                                    newPassword: e.target.value,
+                                }))
+                            }
                         />
                     </div>
 
@@ -207,13 +298,36 @@ export default function Profile() {
                             label="Confirm New Password"
                             name="confirm"
                             value={pwForm.confirm}
-                            onChange={(e) => setPwForm((s) => ({ ...s, confirm: e.target.value }))}
+                            onChange={(e) =>
+                                setPwForm((s) => ({
+                                    ...s,
+                                    confirm: e.target.value,
+                                }))
+                            }
                         />
                     </div>
 
                     <div className="flex gap-3">
-                        <button disabled={saving} className="rounded bg-violet-500 px-4 py-2 text-white">{saving ? "Working..." : "Change Password"}</button>
-                        <button onClick={() => { setPwForm({ oldPassword: "", newPassword: "", confirm: "" }); setError(""); }} type="button" className="rounded bg-slate-200 px-4 py-2">Reset</button>
+                        <button
+                            disabled={saving}
+                            className="rounded bg-violet-500 px-4 py-2 text-white"
+                        >
+                            {saving ? "Working..." : "Change Password"}
+                        </button>
+                        <button
+                            onClick={() => {
+                                setPwForm({
+                                    oldPassword: "",
+                                    newPassword: "",
+                                    confirm: "",
+                                });
+                                setError("");
+                            }}
+                            type="button"
+                            className="rounded bg-slate-200 px-4 py-2"
+                        >
+                            Reset
+                        </button>
                     </div>
                 </form>
             </div>
