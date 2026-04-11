@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Home() {
     return (
         <div className="fade-in min-h-screen bg-linear-to-br from-violet-200 via-violet-100 to-violet-300 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
@@ -12,18 +14,18 @@ export default function Home() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                    <a
-                        href="/bulletins"
+                    <Link
+                        to="/bulletins"
                         className="px-8 py-4 sm:py-5 bg-linear-to-r from-violet-600 to-violet-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg"
                     >
                         View Board
-                    </a>
-                    <a
-                        href="/create"
+                    </Link>
+                    <Link
+                        to="/create"
                         className="px-8 py-4 sm:py-5 bg-white text-violet-600 border border-violet-600 font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-lg"
                     >
                         Create a Bulletin
-                    </a>
+                    </Link>
                 </div>
 
                 <div className="mt-12 p-8 sm:p-10 bg-white rounded-xl shadow-lg border-2 border-violet-100 flex flex-col items-center justify-center">
@@ -36,12 +38,12 @@ export default function Home() {
                     <p className="mt-4 text-sm sm:text-base text-gray-500 max-w-2xl w-3/4 mx-auto italic">
                         Meet the team that created this site!
                     </p>
-                    <a
-                        href="/about"
+                    <Link
+                        to="/about"
                         className="mt-6 px-6 py-2 bg-violet-100 text-violet-700 hover:bg-violet-600 hover:text-white font-semibold rounded-lg transition-all duration-300 hover:shadow-xl shadow-lg"
                     >
                         See more
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>

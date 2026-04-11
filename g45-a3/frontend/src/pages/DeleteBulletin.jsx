@@ -21,8 +21,8 @@ export default function DeleteBulletin() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState("");
 
-    // Get the authFetch function from AuthContext to perform authenticated API requests
-    const { authFetch } = useAuth();
+    // Get the authFetch function and current user from AuthContext to perform authenticated API requests
+    const { authFetch, user } = useAuth();
     const toast = useToast();
 
     // reset scroll position to top since delete box is on top
@@ -51,6 +51,23 @@ export default function DeleteBulletin() {
                 }
 
                 const data = await response.json();
+
+                // Client-side guard, only the author or an admin should delete
+                const authorId = data.author__id || data.author_id || (data.author && (data.author._id || data.author));
+                const uid = String(user?.id || user?._id || user?._id);
+
+                if (!user) {
+                    toast.show("You must be signed in to delete this bulletin.", { type: "danger" });
+                    navigate("/login", { state: { from: `/delete/${id}` } });
+                    return;
+                }
+
+                if (user.role !== "admin" && String(authorId) !== uid) {
+                    toast.show("You are not authorized to delete this bulletin.", { type: "danger" });
+                    navigate(`/bulletins/${id}`);
+                    return;
+                }
+
                 setBulletin(data);
             } catch (err) {
                 console.error("Error fetching bulletin:", err);
@@ -59,7 +76,7 @@ export default function DeleteBulletin() {
         }
 
         fetchBulletin();
-    }, [id]);
+    }, [id, user]);
 
     async function handleSoftDelete() {
         try {
@@ -79,7 +96,9 @@ export default function DeleteBulletin() {
             navigate("/bulletins");
         } catch (err) {
             console.error("Error soft-deleting bulletin:", err);
-            toast.show(`Error deleting bulletin: ${err.message}`, { type: "danger" });
+            toast.show(`Error deleting bulletin: ${err.message}`, {
+                type: "danger",
+            });
             setIsDeleting(false);
         }
     }
@@ -95,14 +114,18 @@ export default function DeleteBulletin() {
 
             if (!response.ok) {
                 const text = await response.text();
-                throw new Error(text || "Failed to permanently delete bulletin");
+                throw new Error(
+                    text || "Failed to permanently delete bulletin",
+                );
             }
 
             toast.show("Bulletin permanently deleted.", { type: "success" });
             navigate("/bulletins");
         } catch (err) {
             console.error("Error permanently deleting bulletin:", err);
-            toast.show(`Error deleting bulletin: ${err.message}`, { type: "danger" });
+            toast.show(`Error deleting bulletin: ${err.message}`, {
+                type: "danger",
+            });
             setIsDeleting(false);
         }
     }
@@ -125,7 +148,9 @@ export default function DeleteBulletin() {
             navigate(`/bulletins/${id}`);
         } catch (err) {
             console.error("Error restoring bulletin:", err);
-            toast.show(`Error restoring bulletin: ${err.message}`, { type: "danger" });
+            toast.show(`Error restoring bulletin: ${err.message}`, {
+                type: "danger",
+            });
             setIsDeleting(false);
         }
     }
@@ -155,7 +180,9 @@ export default function DeleteBulletin() {
                 <DeleteBulletinActions
                     isDeleting={isDeleting}
                     bulletin={bulletin}
-                    handleDelete={handleDelete}
+                    handleSoftDelete={handleSoftDelete}
+                    handlePermanentDelete={handlePermanentDelete}
+                    handleRestore={handleRestore}
                 />
             </div>
         </main>

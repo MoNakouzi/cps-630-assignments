@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import API_BASE_URL from "../config";
 import formatDateToToronto from "../utils/formatDate";
@@ -7,6 +8,19 @@ import BulletinLoading from "../components/general/BulletinLoading";
 
 export default function BulletinDetail() {
     const { id } = useParams();
+
+    const { user } = useAuth();
+
+    function isOwner(bulletin) {
+        if (!user) return false;
+        if (user.role === "admin") return true;
+        const uid = String(user.id || user._id || user._id);
+        const authorId =
+            bulletin.author__id ||
+            bulletin.author_id ||
+            (bulletin.author && (bulletin.author._id || bulletin.author));
+        return String(authorId) === uid;
+    }
 
     const [bulletin, setBulletin] = useState(null);
     const [notFound, setNotFound] = useState(false);
@@ -124,19 +138,23 @@ export default function BulletinDetail() {
                     </dl>
 
                     <div className="mt-8 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:flex-wrap">
-                        <Link
-                            to={`/edit/${bulletin._id}`}
-                            className="inline-flex items-center justify-center rounded-lg bg-violet-500 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 transition-colors shadow-sm hover:shadow-md"
-                        >
-                            Edit Bulletin
-                        </Link>
+                        {isOwner(bulletin) && (
+                            <>
+                                <Link
+                                    to={`/edit/${bulletin._id}`}
+                                    className="inline-flex items-center justify-center rounded-lg bg-violet-500 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 transition-colors shadow-sm hover:shadow-md"
+                                >
+                                    Edit Bulletin
+                                </Link>
 
-                        <Link
-                            to={`/delete/${bulletin._id}`}
-                            className="inline-flex items-center justify-center rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 transition-colors shadow-sm hover:shadow-md"
-                        >
-                            Delete Bulletin
-                        </Link>
+                                <Link
+                                    to={`/delete/${bulletin._id}`}
+                                    className="inline-flex items-center justify-center rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 transition-colors shadow-sm hover:shadow-md"
+                                >
+                                    Delete Bulletin
+                                </Link>
+                            </>
+                        )}
 
                         <Link
                             to="/bulletins"

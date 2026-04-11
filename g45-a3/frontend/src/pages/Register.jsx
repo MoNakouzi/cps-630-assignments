@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
@@ -18,6 +18,16 @@ export default function Register() {
         e.preventDefault();
         setError("");
 
+        // Password requirements: 8+ chars, at least 1 uppercase, at least 1 special char
+        const passReq =
+            /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>\/?]).{8,}$/;
+        if (!passReq.test(password)) {
+            setError(
+                "Password must be at least 8 characters, include an uppercase letter and a special character.",
+            );
+            return;
+        }
+
         try {
             await register({ name, email, password });
             navigate("/");
@@ -32,12 +42,12 @@ export default function Register() {
                 <h2 className="text-xl font-semibold mb-4">Register</h2>
                 <p className="text-gray-400 mb-4">
                     Already have an account?{" "}
-                    <a
-                        href="/login"
+                    <Link
+                        to="/login"
                         className="text-sm text-violet-600 hover:underline"
                     >
                         Sign in here
-                    </a>
+                    </Link>
                     .
                 </p>
 
@@ -68,6 +78,10 @@ export default function Register() {
                         name="password"
                         onChange={(e) => setPassword(e.target.value)}
                     />
+                    <p className="text-xs text-slate-500 mt-1">
+                        Password must be at least 8 characters, include at least
+                        1 uppercase letter and a 1 special character.
+                    </p>
                     <div className="flex justify-center items-center">
                         <button className="rounded bg-violet-500 text-white px-4 py-2">
                             Create account

@@ -1,7 +1,34 @@
 import { Link } from "react-router-dom";
 import formatDateToToronto from "../../utils/formatDate";
+import { useAuth } from "../../context/AuthContext";
 
 export default function BulletinGrid({ bulletins }) {
+    const { user } = useAuth();
+
+    // Helper function to determine if the current user is the owner of the bulletin or an admin
+    function isOwner(b) {
+        // If user is not logged in, always return false
+        if (!user) {
+            return false;
+        }
+
+        // If user is an admin, always return true
+        if (user.role === "admin") {
+            return true;
+        }
+
+        // Compare the user's ID with the bulletin's author ID
+        const uid = String(user.id || user._id || user.__id);
+
+        // possible author id fields from backend flattening
+        const authorId =
+            b.author__id ||
+            b.author_id ||
+            (b.author && (b.author._id || b.author));
+
+        // Return true if the user is the author of the bulletin, false otherwise
+        return String(authorId) === uid;
+    }
     return (
         <section id="bulletinGrid" className="masonry">
             {bulletins.map((b) => (
@@ -43,21 +70,29 @@ export default function BulletinGrid({ bulletins }) {
                         <p>{formatDateToToronto(b.date) || "No date"}</p>
                     </div>
 
-                    <div className="mt-4 flex items-center justify-start gap-3">
-                        <Link
-                            to={`/edit/${b._id}`}
-                            className="text-xs rounded-lg bg-violet-500 px-3 py-2 text-white hover:bg-violet-700 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
-                        >
-                            Edit
-                        </Link>
-
-                        <Link
-                            to={`/delete/${b._id}`}
-                            className="text-xs rounded-lg bg-red-500 px-3 py-2 text-white hover:bg-red-600 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
-                        >
-                            Delete
-                        </Link>
-                    </div>
+                    {isOwner(b) ? (
+                        <div className="mt-4 flex items-center justify-start gap-3">
+                            <Link
+                                to={`/edit/${b._id}`}
+                                className="text-xs rounded-lg bg-violet-500 px-3 py-2 text-white hover:bg-violet-700 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
+                            >
+                                Edit
+                            </Link>
+                            <Link
+                                to={`/delete/${b._id}`}
+                                className="text-xs rounded-lg bg-red-500 px-3 py-2 text-white hover:bg-red-600 transition-colors ease-in-out duration-300 shadow-sm hover:shadow-md"
+                            >
+                                Delete
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="mt-4 flex items-center justify-start gap-3">
+                            <p className="text-xs rounded-lg px-2 py-2 text-gray-500">
+                                Note: This bulletin was created by another user.
+                                You do not have permission to edit or delete it.
+                            </p>
+                        </div>
+                    )}
                 </article>
             ))}
         </section>

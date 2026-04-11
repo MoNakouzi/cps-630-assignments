@@ -68,6 +68,22 @@ export default function EditBulletin() {
 
                 const bulletin = await response.json();
 
+                // Client-side guard, only the author or an admin should edit
+                const authorId = bulletin.author__id || bulletin.author_id || (bulletin.author && (bulletin.author._id || bulletin.author));
+                const uid = String(user?.id || user?._id || user?._id);
+
+                if (!user) {
+                    toast.show("You must be signed in to edit this bulletin.", { type: "danger" });
+                    navigate("/login", { state: { from: `/edit/${id}` } });
+                    return;
+                }
+
+                if (user.role !== "admin" && String(authorId) !== uid) {
+                    toast.show("You are not authorized to edit this bulletin.", { type: "danger" });
+                    navigate(`/bulletins/${id}`);
+                    return;
+                }
+
                 // Pre-fill form with existing bulletin data
                 setFormData({
                     title: bulletin.title || "",
@@ -75,6 +91,7 @@ export default function EditBulletin() {
                     message: bulletin.message || "",
                     author: bulletin.author_name || "",
                     date: formatDateToToronto(bulletin.date) || "",
+                    visibility: bulletin.visibility || "public",
                 });
             } catch (fetchError) {
                 setError(fetchError.message || "Could not fetch bulletin.");
@@ -84,7 +101,7 @@ export default function EditBulletin() {
         }
 
         fetchBulletinDetails();
-    }, [id]);
+    }, [id, user]);
 
     function handleInputChange(event) {
         const { name, value } = event.target;
@@ -104,6 +121,7 @@ export default function EditBulletin() {
                 typeof formData.message === "string"
                     ? formData.message.trim()
                     : "",
+            visibility: formData.visibility || "public",
             // We don't submit author field from client; server enforces author unless admin
         };
 

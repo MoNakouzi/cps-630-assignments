@@ -39,36 +39,36 @@ export default function ProfileMenu({ user, logout }) {
             >
                 <FiUser className="h-5 w-5" />
                 <span className="hidden lg:inline text-sm font-medium">
-                    Hello, {user?.name}
+                    {user?.name}
                 </span>
             </button>
 
-            {open && (
-                <div className="absolute right-0 mt-3 w-64 rounded-md bg-white ring-1 ring-black ring-opacity-5 shadow-lg p-3 z-40">
-                    <div className="mb-2 text-xs font-medium text-slate-700">
-                        {user?.name}'s Account
-                    </div>
-                    <hr />
-                    <button
-                        onClick={() => {
-                            setOpen(false);
-                            navigate("/profile");
-                        }}
-                        className="w-full text-left px-2 py-2 rounded hover:bg-violet-50 transition-colors ease-in-out duration-300"
-                    >
-                        Manage Account
-                    </button>
-                    <button
-                        onClick={() => {
-                            setOpen(false);
-                            handleLogout();
-                        }}
-                        className="w-full text-left px-2 py-2 rounded text-red-600 hover:bg-red-50 transition-colors ease-in-out duration-300"
-                    >
-                        Logout
-                    </button>
+            <div
+                className={`absolute right-0 mt-3 w-48 rounded-md bg-white ring-1 ring-black ring-opacity-5 shadow-lg p-3 z-40 transform origin-top-right transition-all duration-200 ${open ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
+            >
+                <div className="mb-2 text-xs font-medium text-slate-700">
+                    {user?.name}'s Account
                 </div>
-            )}
+                <hr className="border-violet-200 py-1" />
+                <button
+                    onClick={() => {
+                        setOpen(false);
+                        navigate("/profile");
+                    }}
+                    className="w-full mb-1 text-left px-2 py-2 rounded hover:bg-violet-100 text-sm text-violet-700 transition-colors ease-in-out duration-300"
+                >
+                    Manage Account
+                </button>
+                <button
+                    onClick={() => {
+                        setOpen(false);
+                        handleLogout();
+                    }}
+                    className="w-full text-left px-2 py-2 rounded text-red-600 hover:bg-red-100 transition-colors ease-in-out duration-300"
+                >
+                    Logout
+                </button>
+            </div>
         </div>
     );
 }

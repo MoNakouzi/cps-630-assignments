@@ -1,4 +1,5 @@
 import { IoWarningOutline } from "react-icons/io5";
+import { Link } from "react-router-dom";
 
 export default function NotFound() {
     return (
@@ -11,18 +12,18 @@ export default function NotFound() {
                 The page you're looking for doesn't exist (or was moved).
             </p>
             <div className="mt-6 flex items-center justify-center gap-3">
-                <a
-                    href="/"
+                <Link
+                    to="/"
                     className="rounded-lg bg-violet-500 px-4 py-2 text-white hover:bg-violet-700 transition"
                 >
                     Go Home
-                </a>
-                <a
-                    href="/about"
+                </Link>
+                <Link
+                    to="/about"
                     className="rounded-lg bg-slate-200 px-4 py-2 text-slate-900 hover:bg-slate-300 transition"
                 >
                     About
-                </a>
+                </Link>
             </div>
         </div>
     );

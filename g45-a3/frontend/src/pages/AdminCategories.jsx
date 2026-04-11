@@ -61,9 +61,17 @@ export default function AdminCategories() {
 
     // Handler for deleting a category
     async function handleDelete(id) {
-        if (!confirm("Delete this category? Only allowed if no bulletins reference it.")) return;
+        if (
+            !confirm(
+                "Delete this category? Only allowed if no bulletins reference it.",
+            )
+        )
+            return;
         try {
-            const res = await authFetch(`${API_BASE_URL}/api/categories/${id}`, { method: "DELETE" });
+            const res = await authFetch(
+                `${API_BASE_URL}/api/categories/${id}`,
+                { method: "DELETE" },
+            );
             if (!res.ok) {
                 const txt = await res.text();
                 throw new Error(txt || "Failed to delete");
@@ -81,23 +89,45 @@ export default function AdminCategories() {
             {error && <p className="text-red-600">{error}</p>}
 
             <form onSubmit={handleCreate} className="my-4 flex gap-2">
-                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="rounded border px-2" />
-                <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="rounded border px-2" />
-                <button className="rounded bg-violet-500 px-3 py-1 text-white">Add</button>
+                <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Name"
+                    className="rounded border px-2"
+                />
+                <input
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Description"
+                    className="rounded border px-2"
+                />
+                <button className="rounded bg-violet-500 px-3 py-1 text-white">
+                    Add
+                </button>
             </form>
 
             {loading && <p>Loading...</p>}
             {!loading && (
                 <ul className="space-y-2">
                     {cats.map((c) => (
-                        <li key={c._id} className="rounded border bg-white p-3 flex items-center justify-between">
+                        <li
+                            key={c._id}
+                            className="rounded border bg-white p-3 flex items-center justify-between"
+                        >
                             <div>
                                 <div className="font-semibold">{c.name}</div>
-                                <div className="text-xs text-slate-500">{c.slug}</div>
+                                <div className="text-xs text-slate-500">
+                                    {c.slug}
+                                </div>
                                 <div className="text-sm">{c.description}</div>
                             </div>
                             <div>
-                                <button onClick={() => handleDelete(c._id)} className="rounded bg-red-500 px-3 py-1 text-white">Delete</button>
+                                <button
+                                    onClick={() => handleDelete(c._id)}
+                                    className="rounded bg-red-500 px-3 py-1 text-white"
+                                >
+                                    Delete
+                                </button>
                             </div>
                         </li>
                     ))}
