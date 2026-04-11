@@ -1,17 +1,29 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home.jsx";
-import BulletinBoard from "./pages/BulletinBoard.jsx";
-import BulletinDetail from "./pages/BulletinDetail.jsx";
-import CreateBulletin from "./pages/CreateBulletin.jsx";
-import EditBulletin from "./pages/EditBulletin.jsx";
-import DeleteBulletin from "./pages/DeleteBulletin.jsx";
-import About from "./pages/About.jsx";
-import NotFound from "./pages/NotFound.jsx";
+
+// Components
 import Navbar from "./components/general/Navbar.jsx";
 import Footer from "./components/general/Footer.jsx";
 import RequireAuth from "./components/general/RequireAuth";
+import RequireAdmin from "./components/general/RequireAdmin";
+
+// Public pages
+import Home from "./pages/Home.jsx";
+import About from "./pages/About.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import BulletinBoard from "./pages/BulletinBoard.jsx";
+import BulletinDetail from "./pages/BulletinDetail.jsx";
+
+// Auth pages
+import CreateBulletin from "./pages/CreateBulletin.jsx";
+import EditBulletin from "./pages/EditBulletin.jsx";
+import DeleteBulletin from "./pages/DeleteBulletin.jsx";
+import NotFound from "./pages/NotFound.jsx";
+import Profile from "./pages/Profile";
+
+// Admin pages
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminCategories from "./pages/AdminCategories";
 
 export default function App() {
     return (
@@ -51,6 +63,30 @@ export default function App() {
                     />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route
+                        path="/profile"
+                        element={
+                            <RequireAuth>
+                                <Profile />
+                            </RequireAuth>
+                        }
+                    />
+                    <Route
+                        path="/admin"
+                        element={
+                            <RequireAdmin>
+                                <AdminDashboard />
+                            </RequireAdmin>
+                        }
+                    />
+                    <Route
+                        path="/admin/categories"
+                        element={
+                            <RequireAdmin>
+                                <AdminCategories />
+                            </RequireAdmin>
+                        }
+                    />
                     <Route path="/about" element={<About />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>

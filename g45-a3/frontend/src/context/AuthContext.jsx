@@ -62,11 +62,11 @@ export function AuthProvider({ children }) {
         if (!res.ok) {
             let errMsg;
 
-            if (res.status.startsWith("4")) {
+            if (res.status.toString().startsWith("4")) {
                 // Try to extract error message from response
                 try {
                     const errorData = await res.json();
-                    errMsg = errorData.message || "Login failed";
+                    errMsg = errorData.message || "Login failed... ";
                 } catch {
                     // JSON parse errors
                     errMsg = "Login failed";
@@ -142,17 +142,40 @@ export function AuthProvider({ children }) {
     }
 
     // Helper function to make authenticated API requests with the current token
-    function authFetch(url, options = {}) {
+    async function authFetch(url, options = {}) {
         // Include the Authorization header with the Bearer token if available
         const headers = options.headers ? { ...options.headers } : {};
 
-        // If a token exists, add it to the Authorization header
-        if (token) {
-            headers["Authorization"] = `Bearer ${token}`;
-        }
+        if (token) headers["Authorization"] = `Bearer ${token}`;
 
-        // Make the fetch request with the provided URL, options, and updated headers
-        return fetch(url, { ...options, headers });
+        // Perform request
+        return fetch(url, { ...options, headers }).then(async (res) => {
+            // If unauthorized and we have a refresh token, try to refresh once
+            if (res.status === 401 && refreshToken) {
+                try {
+                    const r = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ refreshToken }),
+                    });
+
+                    if (r.ok) {
+                        const data = await r.json();
+                        if (data.token) setToken(data.token);
+                        if (data.refreshToken) setRefreshToken(data.refreshToken);
+
+                        // retry original request with new token
+                        const retryHeaders = options.headers ? { ...options.headers } : {};
+                        if (data.token) retryHeaders["Authorization"] = `Bearer ${data.token}`;
+                        return fetch(url, { ...options, headers: retryHeaders });
+                    }
+                } catch (e) {
+                    console.warn("Refresh attempt failed:", e);
+                }
+            }
+
+            return res;
+        });
     }
 
     const value = {
@@ -163,6 +186,8 @@ export function AuthProvider({ children }) {
         register,
         logout,
         authFetch,
+        // helper to update local user state after profile changes
+        updateUser: (u) => setUser(u),
     };
 
     return (

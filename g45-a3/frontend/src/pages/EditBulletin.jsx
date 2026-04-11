@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
 import API_BASE_URL from "../config";
 import formatDateToToronto from "../utils/formatDate";
@@ -48,6 +49,7 @@ export default function EditBulletin() {
 
     // Get authFetch and current user from AuthContext to perform authenticated requests and access user info
     const { authFetch, user } = useAuth();
+    const toast = useToast();
 
     useEffect(() => {
         async function fetchBulletinDetails() {
@@ -108,7 +110,7 @@ export default function EditBulletin() {
         const validationErrors = validateBulletinInput(trimmedData, user);
 
         if (validationErrors.length > 0) {
-            alert(validationErrors.join("\n"));
+            toast.show(validationErrors.join(" \n"), { type: "danger" });
             return;
         }
 
@@ -132,7 +134,7 @@ export default function EditBulletin() {
                 throw new Error("Failed to update bulletin.");
             }
 
-            alert("Bulletin updated successfully!");
+            toast.show("Bulletin updated successfully!", { type: "success" });
             navigate("/bulletins");
         } catch (updateError) {
             setError(updateError.message || "Could not update bulletin.");
@@ -155,7 +157,7 @@ export default function EditBulletin() {
     }
 
     return (
-        <div className="min-h-screen p-6 sm:p-12">
+        <div className="min-h-screen p-6 sm:p-12 fade-in">
             <div className="mx-auto max-w-3xl">
                 <BulletinForm
                     formTitle="Edit Bulletin"

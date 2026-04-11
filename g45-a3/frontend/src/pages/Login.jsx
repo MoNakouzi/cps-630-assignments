@@ -21,7 +21,7 @@ export default function Login() {
     async function handleSubmit(e) {
         e.preventDefault();
         setError("");
-        
+
         try {
             await login({ email, password });
             navigate(from, { replace: true });
@@ -31,15 +31,31 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen p-6 sm:p-12">
+        <div className="min-h-screen flex items-center p-6 sm:p-12 fade-in">
             <div className="mx-auto max-w-md bg-white p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4">Login</h2>
+                <h2 className="text-xl font-semibold mb-1">
+                    Campus Bulletins Login
+                </h2>
+                <p className="text-gray-400 mb-4">
+                    Don't have an account?{" "}
+                    <a
+                        href="/register"
+                        className="text-sm text-violet-600 hover:underline"
+                    >
+                        Register here
+                    </a>
+                    .
+                </p>
+
                 {error && <p className="text-red-600 mb-3">{error}</p>}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         className="w-full rounded border px-3 py-2"
                         placeholder="Email"
                         value={email}
+                        autoComplete="email"
+                        name="email"
                         onChange={(e) => setEmail(e.target.value)}
                     />
                     <input
@@ -47,11 +63,13 @@ export default function Login() {
                         placeholder="Password"
                         type="password"
                         value={password}
+                        name="password"
                         onChange={(e) => setPassword(e.target.value)}
                     />
-                    <div className="flex justify-between items-center">
-                        <button className="rounded bg-violet-500 text-white px-4 py-2">Sign in</button>
-                        <a href="/register" className="text-sm text-violet-600 hover:underline">Register</a>
+                    <div className="flex justify-center items-center">
+                        <button className="rounded bg-violet-500 text-white px-4 py-2">
+                            Sign in
+                        </button>
                     </div>
                 </form>
             </div>

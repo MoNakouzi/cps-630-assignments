@@ -2,7 +2,7 @@ import { IoWarningOutline } from "react-icons/io5";
 
 export default function NotFound() {
     return (
-        <div className="rounded-xl p-8 text-center min-h-[80vh] flex flex-col items-center justify-center gap-4">
+        <div className="rounded-xl p-8 text-center min-h-[80vh] flex flex-col items-center justify-center gap-4 fade-in">
             <IoWarningOutline className="text-6xl text-violet-500" />
             <h1 className="text-3xl font-bold text-slate-900">
                 404 - Page Not Found

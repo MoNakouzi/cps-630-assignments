@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../config";
 import BulletinForm from "../components/bulletinForm/BulletinForm";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
 function validateBulletinInput(formData, currentUser = null) {
     const errors = [];
@@ -40,6 +41,7 @@ export default function CreateBulletin() {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
     const { authFetch, user } = useAuth();
+    const toast = useToast();
 
     function handleInputChange(event) {
         const { name, value } = event.target;
@@ -82,7 +84,7 @@ export default function CreateBulletin() {
             }
 
             const createdBulletin = await response.json();
-            alert("Bulletin created successfully!");
+            toast.show("Bulletin created successfully!", { type: "success" });
             navigate(`/bulletins/${createdBulletin._id}`);
         } catch (createError) {
             setError(createError.message || "Could not create bulletin.");
@@ -92,7 +94,7 @@ export default function CreateBulletin() {
     }
 
     return (
-        <div className="min-h-screen p-6 sm:p-12">
+        <div className="min-h-screen p-6 sm:p-12 fade-in">
             <div className="mx-auto max-w-3xl">
                 <BulletinForm
                     formTitle="Create Bulletin"

@@ -52,7 +52,7 @@ export default function BulletinBoard() {
     }, [selectedCategory, searchTerm, searchField]);
 
     return (
-        <main className="mx-auto max-w-6xl px-4 py-8 min-h-screen pb-10">
+        <main className="mx-auto max-w-6xl px-4 py-8 min-h-screen pb-10 fade-in">
             <section className="mb-6">
                 <h1 className="text-3xl font-bold tracking-tight text-slate-900">
                     Bulletin Board

@@ -50,7 +50,7 @@ export default function BulletinDetail() {
     }
 
     return (
-        <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 fade-in">
             <div className="overflow-hidden rounded-3xl border border-violet-200 bg-white shadow-sm">
                 <div className="border-b border-violet-100 bg-linear-to-r from-violet-50 to-white px-6 py-6 sm:px-8">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">

@@ -29,3 +29,17 @@
     break-inside: avoid;
     margin-bottom: 1rem;
 }
+
+/* Page transition: fade content into view */
+.fade-in {
+    opacity: 0;
+    transform: translateY(50px);
+    animation: fadeInUp 550ms ease-in-out forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

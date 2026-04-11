@@ -1,6 +1,6 @@
 export default function About() {
     return (
-        <main className="mx-auto max-w-4xl px-4 py-10 min-h-screen">
+        <main className="fade-in mx-auto max-w-4xl px-4 py-10 min-h-screen">
             <section className="rounded-xl border border-violet-200 bg-white p-6 shadow-sm">
                 <h1 className="text-3xl font-bold text-slate-900">About Us</h1>
                 <p className="mt-2 text-sm text-slate-600">

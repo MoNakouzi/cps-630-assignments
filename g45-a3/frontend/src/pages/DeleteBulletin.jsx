@@ -8,6 +8,7 @@ import DeleteBulletinError from "../components/deleteBulletin/DeleteBulletinErro
 import BulletinLoading from "../components/general/BulletinLoading";
 import DeleteBulletinPreview from "../components/deleteBulletin/DeleteBulletinPreview";
 import DeleteBulletinActions from "../components/deleteBulletin/DeleteBulletinActions";
+import { useToast } from "../context/ToastContext";
 
 export default function DeleteBulletin() {
     // Get the bulletin ID from the URL parameters
@@ -22,6 +23,7 @@ export default function DeleteBulletin() {
 
     // Get the authFetch function from AuthContext to perform authenticated API requests
     const { authFetch } = useAuth();
+    const toast = useToast();
 
     // reset scroll position to top since delete box is on top
     useEffect(() => {
@@ -59,30 +61,71 @@ export default function DeleteBulletin() {
         fetchBulletin();
     }, [id]);
 
-    async function handleDelete() {
+    async function handleSoftDelete() {
         try {
             setIsDeleting(true);
 
-            // Send DELETE request to delete the bulletin using authFetch for authentication
             const response = await authFetch(
-                `${API_BASE_URL}/api/bulletins/${id}`,
-                {
-                    method: "DELETE",
-                },
+                `${API_BASE_URL}/api/bulletins/${id}/soft-delete`,
+                { method: "POST" },
             );
 
             if (!response.ok) {
                 const text = await response.text();
-                throw new Error(text || "Failed to delete bulletin");
+                throw new Error(text || "Failed to soft-delete bulletin");
             }
 
-            alert("Bulletin deleted successfully.");
+            toast.show("Bulletin soft-deleted.", { type: "success" });
             navigate("/bulletins");
         } catch (err) {
-            console.error("Error deleting bulletin:", err);
-            alert(`Error deleting bulletin: ${err.message}`);
+            console.error("Error soft-deleting bulletin:", err);
+            toast.show(`Error deleting bulletin: ${err.message}`, { type: "danger" });
+            setIsDeleting(false);
+        }
+    }
 
-            // re-enable button if delete fails
+    async function handlePermanentDelete() {
+        try {
+            setIsDeleting(true);
+
+            const response = await authFetch(
+                `${API_BASE_URL}/api/bulletins/${id}`,
+                { method: "DELETE" },
+            );
+
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(text || "Failed to permanently delete bulletin");
+            }
+
+            toast.show("Bulletin permanently deleted.", { type: "success" });
+            navigate("/bulletins");
+        } catch (err) {
+            console.error("Error permanently deleting bulletin:", err);
+            toast.show(`Error deleting bulletin: ${err.message}`, { type: "danger" });
+            setIsDeleting(false);
+        }
+    }
+
+    async function handleRestore() {
+        try {
+            setIsDeleting(true);
+
+            const response = await authFetch(
+                `${API_BASE_URL}/api/bulletins/${id}/restore`,
+                { method: "POST" },
+            );
+
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(text || "Failed to restore bulletin");
+            }
+
+            toast.show("Bulletin restored.", { type: "success" });
+            navigate(`/bulletins/${id}`);
+        } catch (err) {
+            console.error("Error restoring bulletin:", err);
+            toast.show(`Error restoring bulletin: ${err.message}`, { type: "danger" });
             setIsDeleting(false);
         }
     }
@@ -92,7 +135,7 @@ export default function DeleteBulletin() {
     }
 
     return (
-        <main className="mx-auto min-h-screen max-w-xl px-4 py-10">
+        <main className="mx-auto min-h-screen max-w-xl px-4 py-10 fade-in">
             <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
                 <h1 className="text-2xl font-bold text-red-600">
                     Delete Bulletin
