@@ -9,6 +9,11 @@ const User = require("../models/User");
 const escapeRegex = require("../utils/escapeRegex");
 const { requireAuth, requireAdmin } = require("../middleware/auth");
 
+const {
+  broadcastToRoom,
+  getBulletinRoomName,
+} = require("../utils/socket");
+
 // Helper to flatten populated author/category into fields
 function flattenBulletin(doc) {
     if (!doc) return doc;
@@ -620,6 +625,16 @@ router.post("/:id/soft-delete", requireAuth, async (req, res) => {
 
         // Update the bulletin
         await bulletin.save();
+
+        broadcastToRoom(
+            getBulletinRoomName(idParam),
+            "bulletin-room-closed",
+            {
+                bulletinId: idParam,
+                message: "This bulletin was deleted, so the chatroom has been closed.",
+        }
+);
+
         return res.status(200).json({ message: "Bulletin soft-deleted" });
     } catch (err) {
         console.error("Error soft-deleting bulletin:", err);
@@ -683,6 +698,14 @@ router.delete("/:id", requireAdmin, async (req, res) => {
             });
         }
 
+        broadcastToRoom(
+            getBulletinRoomName(idParam),
+            "bulletin-room-closed",
+            {
+                bulletinId: idParam,
+                message: "This bulletin was permanently removed, so the chatroom has been closed.",
+            }
+        );
         // Permanently delete the bulletin
         await Bulletin.findByIdAndDelete(idParam);
         return res.status(204).send();

@@ -5,166 +5,149 @@ import API_BASE_URL from "../config";
 import formatDateToToronto from "../utils/formatDate";
 import BulletinNotFound from "../components/general/BulletinNotFound";
 import BulletinLoading from "../components/general/BulletinLoading";
+import BulletinChatRoom from "../components/general/BulletinChatRoom";
 
 export default function BulletinDetail() {
-    const { id } = useParams();
+  const { id } = useParams();
+  const { user } = useAuth();
 
-    const { user, authFetch } = useAuth();
+  const [bulletin, setBulletin] = useState(null);
+  const [notFound, setNotFound] = useState(false);
 
-    function isOwner(bulletin) {
-        if (!user) return false;
-        if (user.role === "admin") return true;
-        const uid = String(user.id || user._id || user._id);
-        const authorId =
-            bulletin.author__id ||
-            bulletin.author_id ||
-            (bulletin.author && (bulletin.author._id || bulletin.author));
-        return String(authorId) === uid;
-    }
+  function isOwner(bulletin) {
+    if (!user) return false;
+    if (user.role === "admin") return true;
 
-    const [bulletin, setBulletin] = useState(null);
-    const [notFound, setNotFound] = useState(false);
+    const uid = String(user.id || user._id);
+    const authorId =
+      bulletin.author__id ||
+      bulletin.author_id ||
+      (bulletin.author && (bulletin.author._id || bulletin.author));
 
-    useEffect(() => {
-        async function fetchBulletin() {
-            try {
-                setNotFound(false);
+    return String(authorId) === uid;
+  }
+
+  useEffect(() => {
+    async function fetchBulletin() {
+      try {
+        setNotFound(false);
 
                 // Use authFetch when available so the Authorization header is sent
                 const fetcher = authFetch || fetch;
                 const response = await fetcher(`${API_BASE_URL}/api/bulletins/${id}`);
 
-                if (response.status === 404) {
-                    setNotFound(true);
-                    setBulletin(null);
-                    return;
-                }
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch bulletin");
-                }
-
-                const data = await response.json();
-                setBulletin(data);
-            } catch (err) {
-                console.error("Error fetching bulletin:", err);
-            }
+        if (response.status === 404) {
+          setNotFound(true);
+          setBulletin(null);
+          return;
         }
 
-        fetchBulletin();
-    }, [id]);
+        if (!response.ok) {
+          throw new Error("Failed to fetch bulletin");
+        }
 
-    if (notFound) {
-        return <BulletinNotFound id={id} />;
+        const data = await response.json();
+        setBulletin(data);
+      } catch (err) {
+        console.error("Error fetching bulletin:", err);
+      }
     }
 
-    // If found and bulletin is null, it means we're still loading
-    if (!bulletin) {
-        return <BulletinLoading />;
-    }
+    fetchBulletin();
+  }, [id]);
 
-    return (
-        <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 fade-in">
-            <div className="overflow-hidden rounded-3xl border border-violet-200 bg-white shadow-sm">
-                <div className="border-b border-violet-100 bg-linear-to-r from-violet-50 to-white px-6 py-6 sm:px-8">
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="min-w-0">
-                            <p className="text-xs font-semibold uppercase text-violet-600">
-                                Bulletin Details
-                            </p>
+  if (notFound) {
+    return <BulletinNotFound />;
+  }
 
-                            <h1 className="mt-2 wrap-break-word text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                                {bulletin.title}
-                            </h1>
-                        </div>
+  if (!bulletin) {
+    return <BulletinLoading />;
+  }
 
-                        <div className="shrink-0">
-                            <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                                {bulletin.category_name}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+  return (
+    <section className="max-w-4xl mx-auto px-4 py-8">
+      <div className="rounded-2xl bg-white shadow-md border border-violet-200 p-6">
+        <h1 className="text-3xl font-bold text-violet-900 mb-4">
+          Bulletin Details
+        </h1>
 
-                <div className="px-6 py-6 sm:px-8">
-                    <dl className="divide-y divide-slate-100">
-                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
-                            <dt className="text-sm font-semibold text-slate-500">
-                                Bulletin ID
-                            </dt>
-                            <dd className="break-all text-sm text-slate-700">
-                                {bulletin._id}
-                            </dd>
-                        </div>
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900">
+              {bulletin.title}
+            </h2>
+            <p className="mt-1 inline-block rounded-full bg-violet-100 px-3 py-1 text-sm text-violet-800">
+              {bulletin.category_name}
+            </p>
+          </div>
 
-                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
-                            <dt className="text-sm font-semibold text-slate-500">
-                                Created By
-                            </dt>
-                            <dd className="text-sm text-slate-900">
-                                {bulletin.author_name || "Unknown"}
-                            </dd>
-                        </div>
-
-                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
-                            <dt className="text-sm font-semibold text-slate-500">
-                                Date Created
-                            </dt>
-                            <dd className="text-sm text-slate-900">
-                                {formatDateToToronto(bulletin.date) ||
-                                    "No date available"}
-                            </dd>
-                        </div>
-
-                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
-                            <dt className="text-sm font-semibold text-slate-500">
-                                Category
-                            </dt>
-                            <dd className="text-sm text-slate-900">
-                                {bulletin.category_name || "Uncategorized"}
-                            </dd>
-                        </div>
-
-                        <div className="grid gap-2 py-4 sm:grid-cols-1 sm:gap-6">
-                            <dt className="text-sm font-semibold text-slate-500">
-                                Message
-                            </dt>
-                            <dd className="text-sm leading-7 whitespace-pre-line text-slate-800">
-                                {bulletin.message && bulletin.message.trim()
-                                    ? bulletin.message
-                                    : "No message content was provided."}
-                            </dd>
-                        </div>
-                    </dl>
-
-                    <div className="mt-8 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:flex-wrap">
-                        {isOwner(bulletin) && (
-                            <>
-                                <Link
-                                    to={`/edit/${bulletin._id}`}
-                                    className="inline-flex items-center justify-center rounded-lg bg-violet-500 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 transition-colors shadow-sm hover:shadow-md"
-                                >
-                                    Edit Bulletin
-                                </Link>
-
-                                <Link
-                                    to={`/delete/${bulletin._id}`}
-                                    className="inline-flex items-center justify-center rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 transition-colors shadow-sm hover:shadow-md"
-                                >
-                                    Delete Bulletin
-                                </Link>
-                            </>
-                        )}
-
-                        <Link
-                            to="/bulletins"
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
-                        >
-                            Back to Bulletins
-                        </Link>
-                    </div>
-                </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Bulletin ID</p>
+              <p className="text-gray-900 break-all">{bulletin._id}</p>
             </div>
-        </section>
-    );
+
+            <div>
+              <p className="text-sm font-medium text-gray-500">Created By</p>
+              <p className="text-gray-900">
+                {bulletin.author_name || "Unknown"}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-500">Date Created</p>
+              <p className="text-gray-900">
+                {formatDateToToronto(bulletin.date) || "No date available"}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium text-gray-500">Category</p>
+              <p className="text-gray-900">
+                {bulletin.category_name || "Uncategorized"}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm font-medium text-gray-500">Message</p>
+            <p className="mt-1 whitespace-pre-wrap text-gray-800">
+              {bulletin.message && bulletin.message.trim()
+                ? bulletin.message
+                : "No message content was provided."}
+            </p>
+          </div>
+
+          {isOwner(bulletin) && (
+            <div className="flex gap-3 pt-2">
+              <Link
+                to={`/bulletins/${bulletin._id}/edit`}
+                className="rounded-lg bg-violet-700 px-4 py-2 text-white hover:bg-violet-800"
+              >
+                Edit Bulletin
+              </Link>
+
+              <Link
+                to={`/bulletins/${bulletin._id}/delete`}
+                className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+              >
+                Delete Bulletin
+              </Link>
+            </div>
+          )}
+
+          <div className="pt-2">
+            <Link
+              to="/bulletins"
+              className="text-violet-700 hover:text-violet-900 font-medium"
+            >
+              ← Back to Bulletins
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <BulletinChatRoom bulletinId={id} />
+    </section>
+  );
 }
