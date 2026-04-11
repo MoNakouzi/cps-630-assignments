@@ -37,7 +37,6 @@ async function findAccessibleBulletin(user, bulletinId) {
   return bulletin;
 }
 
-// Existing announcements history
 router.get("/announcements", requireAuth, async (req, res) => {
   try {
     const messages = await ChatMessage.find({ room: ANNOUNCEMENTS_ROOM })
@@ -51,7 +50,6 @@ router.get("/announcements", requireAuth, async (req, res) => {
   }
 });
 
-// Existing admin announcement posting
 router.post("/announcements", requireAuth, requireAdmin, async (req, res) => {
   try {
     const { text } = req.body;
@@ -83,7 +81,6 @@ router.post("/announcements", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// NEW: Get bulletin-specific room history
 router.get("/bulletins/:bulletinId/messages", requireAuth, async (req, res) => {
   try {
     const { bulletinId } = req.params;
