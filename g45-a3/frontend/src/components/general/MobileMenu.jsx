@@ -22,6 +22,23 @@ export default function MobileMenu({
         >
             <div className="p-4">
                 <ul className="space-y-3">
+                    {user && user.role === "admin" && (
+                        <>
+                            {adminItems.map((a) => (
+                                <li key={a.href}>
+                                    <Link
+                                        to={a.href}
+                                        className="block text-gray-700 font-medium px-2 py-2 rounded hover:bg-gray-200 transition-colors"
+                                        onClick={() => onClose && onClose()}
+                                    >
+                                        {a.name}
+                                    </Link>
+                                </li>
+                            ))}
+                            <hr className="border-t my-2" />
+                        </>
+                    )}
+
                     {navItems.map((item) => (
                         <li key={item.href}>
                             <Link
@@ -110,7 +127,7 @@ export default function MobileMenu({
                                                         try {
                                                             await logout();
                                                             toast.show(
-                                                                "Logged out",
+                                                                "Logged out successfully!",
                                                                 {
                                                                     type: "success",
                                                                 },
@@ -119,7 +136,7 @@ export default function MobileMenu({
                                                         } catch (e) {
                                                             console.error(e);
                                                             toast.show(
-                                                                "Logout failed",
+                                                                "Error: Logout failed",
                                                                 {
                                                                     type: "danger",
                                                                 },
@@ -162,27 +179,6 @@ export default function MobileMenu({
                                 </div>
                             </div>
                         </li>
-                    )}
-
-                    {user && user.role === "admin" && (
-                        <>
-                            <li className="pt-2 border-t">
-                                <div className="text-sm font-semibold text-slate-700">
-                                    Admin
-                                </div>
-                            </li>
-                            {adminItems.map((a) => (
-                                <li key={a.href}>
-                                    <Link
-                                        to={a.href}
-                                        className="block pl-2 text-slate-700 px-2 py-2 rounded hover:bg-slate-50 transition"
-                                        onClick={() => onClose && onClose()}
-                                    >
-                                        {a.name}
-                                    </Link>
-                                </li>
-                            ))}
-                        </>
                     )}
                 </ul>
             </div>

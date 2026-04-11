@@ -12,7 +12,8 @@ const { requireAuth, requireAdmin } = require("../middleware/auth");
 // Helper to flatten populated author/category into fields
 function flattenBulletin(doc) {
     if (!doc) return doc;
-    const obj = typeof doc.toObject === "function" ? doc.toObject() : { ...doc };
+    const obj =
+        typeof doc.toObject === "function" ? doc.toObject() : { ...doc };
 
     // move category fields to category_<field>
     if (obj.category && typeof obj.category === "object") {
@@ -97,6 +98,85 @@ router.post("/", requireAuth, async (req, res) => {
 /******************************************************/
 /********* Defining (CRUD) API READ routes ************/
 /******************************************************/
+// (PRIVATE) Admin-only stats (counts per category, total bulletins, total per user)
+router.get("/stats", requireAdmin, async (req, res) => {
+    try {
+        const total = await Bulletin.countDocuments({});
+        const totalActive = await Bulletin.countDocuments({ isDeleted: false });
+
+        // for each category (grouped) return the count of bulletins, including categories with zero bulletins
+        const perCategory = await Category.aggregate([
+            {
+                // Join bulletins to each category on category _id = bulletin category
+                $lookup: {
+                    from: "bulletins",
+                    localField: "_id",
+                    foreignField: "category",
+                    as: "bulletins",
+                },
+            },
+            {
+                // Group by category _id and count the number of bulletins in the joined array
+                $group: {
+                    _id: {
+                        id: "$_id",
+                        name: "$name",
+                    },
+                    count: { $sum: { $size: "$bulletins" } },
+                },
+            },
+        ]);
+
+        // Flatten the perCategory results to return category id, name and count in the response
+        const flattenedPerCategory = perCategory.map((c) => ({
+            categoryId: c._id.id,
+            categoryName: c._id.name,
+            count: c.count,
+        }));
+
+        // for each author (grouped) return the count of bulletins, including authors with zero bulletins
+        const perUser = await User.aggregate([
+            {
+                // Join bulletins to each user on user _id = bulletin author
+                $lookup: {
+                    from: "bulletins",
+                    localField: "_id",
+                    foreignField: "author",
+                    as: "bulletins",
+                },
+            },
+            {
+                // Group by user _id and count the number of bulletins in the joined array
+                $group: {
+                    _id: {
+                        id: "$_id",
+                        name: "$name",
+                    },
+                    count: { $sum: { $size: "$bulletins" } },
+                },
+            },
+        ]);
+
+        // Flatten the perUser results to return user id, name and count in the response
+        const flattenedPerUser = perUser.map((u) => ({
+            userId: u._id.id,
+            userName: u._id.name,
+            count: u.count,
+        }));
+
+        // Return the stats in an object
+        return res.status(200).json({
+            total,
+            totalActive,
+            perCategory: flattenedPerCategory,
+            perUser: flattenedPerUser,
+        });
+    } catch (err) {
+        console.error("Error fetching stats:", err);
+        return res.status(500).json({ error: "Server error fetching stats" });
+    }
+});
+
 // (PUBLIC) Get bulletins with optional filtering by category / search (in title, category, or author)
 // Supports optional pagination through `page` and `limit` query params
 router.get("/", async (req, res) => {
@@ -285,7 +365,8 @@ router.get("/:id", async (req, res) => {
                 !(
                     req.user &&
                     (req.user.role === "admin" ||
-                        String(bulletin.author?._id || bulletin.author) === String(req.user.id))
+                        String(bulletin.author?._id || bulletin.author) ===
+                            String(req.user.id))
                 )
             ) {
                 return res
@@ -300,87 +381,6 @@ router.get("/:id", async (req, res) => {
         return res
             .status(500)
             .json({ error: "Server error fetching bulletin" });
-    }
-});
-
-// (PRIVATE) Admin-only stats (counts per category, total bulletins, total per user)
-router.get("/stats", requireAdmin, async (req, res) => {
-    try {
-        const total = await Bulletin.countDocuments({});
-        const totalActive = await Bulletin.countDocuments({ isDeleted: false });
-
-        // for each category (grouped) return the count of bulletins, including categories with zero bulletins
-        const perCategory = await Category.aggregate([
-            {
-                // Join bulletins to each category on category _id = bulletin category
-                $lookup: {
-                    from: "bulletins",
-                    localField: "_id",
-                    foreignField: "category",
-                    as: "bulletins",
-                },
-            },
-            {
-                // Group by category _id and count the number of bulletins in the joined array
-                $group: {
-                    _id: {
-                        id: "$_id",
-                        name: "$name",
-                    },
-                    count: { $sum: { $size: "$bulletins" } },
-                },
-            },
-        ]);
-
-        // Flatten the perCategory results to return category id, name and count in the response
-        const flattenedPerCategory = perCategory.map((c) => ({
-            categoryId: c._id.id,
-            categoryName: c._id.name,
-            count: c.count,
-        }));
-
-        // for each author (grouped) return the count of bulletins, including authors with zero bulletins
-        const perUser = await User.aggregate([
-            {
-                // Join bulletins to each user on user _id = bulletin author
-                $lookup: {
-                    from: "bulletins",
-                    localField: "_id",
-                    foreignField: "author",
-                    as: "bulletins",
-                },
-            },
-            {
-                // Group by user _id and count the number of bulletins in the joined array
-                $group: {
-                    _id: {
-                        id: "$_id",
-                        name: "$name",
-                    },
-                    count: { $sum: { $size: "$bulletins" } },
-                },
-            },
-        ]);
-
-        // Flatten the perUser results to return user id, name and count in the response
-        const flattenedPerUser = perUser.map((u) => ({
-            userId: u._id.id,
-            userName: u._id.name,
-            count: u.count,
-        }));
-
-        // Return the stats in an object
-        return res
-            .status(200)
-            .json({
-                total,
-                totalActive,
-                perCategory: flattenedPerCategory,
-                perUser: flattenedPerUser,
-            });
-    } catch (err) {
-        console.error("Error fetching stats:", err);
-        return res.status(500).json({ error: "Server error fetching stats" });
     }
 });
 
@@ -538,7 +538,7 @@ router.patch("/:id", requireAuth, async (req, res) => {
         const updated = await Bulletin.findByIdAndUpdate(
             idParam,
             { $set: updateData },
-            { new: true, runValidators: true },
+            { returnDocument: "after", runValidators: true },
         )
             .populate("author", "name email role")
             .populate("category", "name slug description");

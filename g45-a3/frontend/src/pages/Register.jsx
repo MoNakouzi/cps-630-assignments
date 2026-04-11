@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import PasswordField from "../components/general/PasswordField";
+import InputField from "../components/general/InputField";
 
 export default function Register() {
     const navigate = useNavigate();
@@ -60,21 +60,21 @@ export default function Register() {
                 {error && <p className="text-red-600 mb-3">{error}</p>}
 
                 <form onSubmit={handleSubmit} className="space-y-4 sm:min-w-md">
-                    <PasswordField
+                    <InputField
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         name="name"
                         placeholder="Name"
                     />
-                    <PasswordField
+                    <InputField
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         name="email"
                         placeholder="Email"
                     />
-                    <PasswordField
+                    <InputField
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -86,7 +86,7 @@ export default function Register() {
                         1 uppercase letter and a 1 special character.
                     </p>
                     <div className="flex justify-center items-center">
-                        <button className="rounded bg-violet-500 text-white px-4 py-2">
+                        <button className="rounded bg-violet-500 text-white px-4 py-2 hover:bg-violet-600 transition-colors ease-out duration-300 hover:cursor-pointer">
                             Create account
                         </button>
                     </div>

@@ -59,7 +59,10 @@ export default function BulletinBoard() {
                 </h1>
                 <p className="mt-2 text-sm text-slate-700 max-w-2xl">
                     Our campus bulletin board items! Browse through the latest
-                    announcements, events, and more.
+                    announcements, events, and more. <br /><br />
+                    <strong>Note:</strong> If a bulletin was
+                    created by another user, you do not have permission to edit
+                    or delete it (unless you're an admin).
                 </p>
             </section>
 

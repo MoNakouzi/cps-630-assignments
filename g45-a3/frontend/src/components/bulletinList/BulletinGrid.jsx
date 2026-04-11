@@ -70,7 +70,7 @@ export default function BulletinGrid({ bulletins }) {
                         <p>{formatDateToToronto(b.date) || "No date"}</p>
                     </div>
 
-                    {isOwner(b) ? (
+                    {isOwner(b) && (
                         <div className="mt-4 flex items-center justify-start gap-3">
                             <Link
                                 to={`/edit/${b._id}`}
@@ -84,13 +84,6 @@ export default function BulletinGrid({ bulletins }) {
                             >
                                 Delete
                             </Link>
-                        </div>
-                    ) : (
-                        <div className="mt-4 flex items-center justify-start gap-3">
-                            <p className="text-xs rounded-lg px-2 py-2 text-gray-500">
-                                Note: This bulletin was created by another user.
-                                You do not have permission to edit or delete it.
-                            </p>
                         </div>
                     )}
                 </article>

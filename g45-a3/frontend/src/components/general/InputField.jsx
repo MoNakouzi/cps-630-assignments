@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 // General input component. When `type` is "password" it shows a visibility toggle.
-export default function PasswordField({
+export default function InputField({
     value,
     onChange,
     name = "input",
@@ -40,7 +40,7 @@ export default function PasswordField({
                         aria-label={show ? "Hide password" : "Show password"}
                         className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center h-8 w-8 rounded-full bg-slate-50 border border-slate-100 text-slate-600 hover:bg-slate-100 transition"
                     >
-                        {show ? <FiEyeOff /> : <FiEye />}
+                        {show ? <FiEye /> : <FiEyeOff />}
                     </button>
                 ) : null}
             </div>

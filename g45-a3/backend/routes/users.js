@@ -220,7 +220,7 @@ router.patch("/:id", requireAuth, async (req, res) => {
         const updated = await User.findByIdAndUpdate(
             idParam,
             { $set: update },
-            { new: true, runValidators: true },
+            { returnDocument: "after", runValidators: true },
         );
 
         // If user not found, return 404

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../config";
 import { useAuth } from "../context/AuthContext";
 import BulletinLoading from "../components/general/BulletinLoading";
-import PasswordField from "../components/general/PasswordField";
+import InputField from "../components/general/InputField";
 import { useToast } from "../context/ToastContext";
 
 export default function Profile() {
@@ -206,7 +206,7 @@ export default function Profile() {
 
                 <form onSubmit={handleProfileSave} className="space-y-4">
                     <div>
-                        <PasswordField
+                        <InputField
                             label="Name"
                             type="text"
                             value={form.name}
@@ -218,7 +218,7 @@ export default function Profile() {
                     </div>
 
                     <div>
-                        <PasswordField
+                        <InputField
                             label="Email"
                             type="email"
                             value={form.email}
@@ -260,8 +260,9 @@ export default function Profile() {
                 <h2 className="text-lg font-semibold mb-3">Change Password</h2>
                 <form onSubmit={handlePasswordChange} className="space-y-4">
                     <div>
-                        <PasswordField
+                        <InputField
                             label="Current Password"
+                            type="password"
                             name="oldPassword"
                             value={pwForm.oldPassword}
                             onChange={(e) =>
@@ -274,8 +275,9 @@ export default function Profile() {
                     </div>
 
                     <div>
-                        <PasswordField
+                        <InputField
                             label="New Password"
+                            type="password"
                             name="newPassword"
                             value={pwForm.newPassword}
                             onChange={(e) =>
@@ -288,7 +290,8 @@ export default function Profile() {
                     </div>
 
                     <div>
-                        <PasswordField
+                        <InputField
+                            type="password"  
                             label="Confirm New Password"
                             name="confirm"
                             value={pwForm.confirm}

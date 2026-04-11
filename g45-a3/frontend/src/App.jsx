@@ -24,6 +24,7 @@ import Profile from "./pages/Profile";
 // Admin pages
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminCategories from "./pages/AdminCategories";
+import AdminUsers from "./pages/AdminUsers";
 
 export default function App() {
     return (
@@ -84,6 +85,14 @@ export default function App() {
                         element={
                             <RequireAdmin>
                                 <AdminCategories />
+                            </RequireAdmin>
+                        }
+                    />
+                    <Route
+                        path="/admin/users"
+                        element={
+                            <RequireAdmin>
+                                <AdminUsers />
                             </RequireAdmin>
                         }
                     />

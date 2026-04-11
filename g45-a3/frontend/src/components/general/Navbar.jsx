@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
 
@@ -10,6 +10,8 @@ export default function Navbar() {
     const { user, logout } = useAuth();
     const [open, setOpen] = useState(false);
 
+    const adminDetailsRef = useRef(null);
+
     const navItems = [
         { name: "Home", href: "/" },
         { name: "Bulletin Board", href: "/bulletins" },
@@ -18,8 +20,8 @@ export default function Navbar() {
 
     const adminItems = [
         { name: "Admin Dashboard", href: "/admin" },
-        { name: "Categories", href: "/admin/categories" },
-        { name: "Users", href: "/admin/users" },
+        { name: "Manage Categories", href: "/admin/categories" },
+        { name: "View Users", href: "/admin/users" },
     ];
 
     return (
@@ -70,11 +72,14 @@ export default function Navbar() {
                     {user && user.role === "admin" && (
                         <li>
                             <div className="relative">
-                                <details className="group">
+                                <details
+                                    className="group"
+                                    ref={adminDetailsRef}
+                                >
                                     <summary className="list-none cursor-pointer rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-700 hover:bg-slate-200">
                                         Admin
                                     </summary>
-                                    <div className="absolute right-0 mt-2 w-44 rounded-md bg-white ring-1 ring-black ring-opacity-5 shadow-lg">
+                                    <div className="absolute right-0 mt-2 w-44 rounded-md bg-white ring-1 ring-black ring-opacity-5 shadow-lg z-50">
                                         <ul className="p-2 text-sm">
                                             {adminItems.map((a) => (
                                                 <li
@@ -84,6 +89,11 @@ export default function Navbar() {
                                                     <Link
                                                         to={a.href}
                                                         className="block px-2 py-1 rounded hover:bg-slate-50"
+                                                        onClick={() =>
+                                                            adminDetailsRef.current?.removeAttribute(
+                                                                "open",
+                                                            )
+                                                        }
                                                     >
                                                         {a.name}
                                                     </Link>

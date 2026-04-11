@@ -117,7 +117,7 @@ router.patch("/:id", requireAdmin, async (req, res) => {
         const updated = await Category.findByIdAndUpdate(
             idParam,
             { $set: update },
-            { new: true, runValidators: true },
+            { returnDocument: "after", runValidators: true },
         );
 
         // If no category was found with the given ID, return a 404 error

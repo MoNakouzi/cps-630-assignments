@@ -82,7 +82,25 @@ export default function CreateBulletin() {
             });
 
             if (!response.ok) {
-                throw new Error("Failed to create bulletin.");
+                // Try to extract server-provided error message (JSON or plain text)
+                let msg = `Failed to create bulletin (status ${response.status})`;
+                try {
+                    const ct = response.headers.get("content-type") || "";
+                    if (ct.includes("application/json")) {
+                        const body = await response.json();
+                        msg = body.error || body.message || JSON.stringify(body);
+                    } else {
+                        const text = await response.text();
+                        if (text) {
+                            msg = text;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Could not parse error response body:", e);
+                }
+
+                toast.show(msg, { type: "danger" });
+                throw new Error(msg);
             }
 
             const createdBulletin = await response.json();
