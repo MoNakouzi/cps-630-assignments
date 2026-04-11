@@ -12,7 +12,7 @@ import Footer from "./components/general/Footer.jsx";
 import RequireAuth from "./components/general/RequireAuth";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
-import AnnouncementsPage from "./pages/AnnouncementsPage.jsx";
+
 
 
 export default function App() {
@@ -51,6 +51,7 @@ export default function App() {
                             </RequireAuth>
                         }
                     />
+
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/about" element={<About />} />

@@ -1,5 +1,8 @@
 import { useAuth } from "../../context/AuthContext";
 import { FiUser } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+
 
 export default function Navbar() {
     // Get the current user and logout function from AuthContext to display user info and handle logout
@@ -11,6 +14,19 @@ export default function Navbar() {
         { name: "Bulletin Board", href: "/bulletins" },
         { name: "About", href: "/about" },
     ];
+
+    useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setChatOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
     return (
         <header className="border-b bg-white">

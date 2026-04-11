@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-
+import AnnouncementsRoom from "../components/general/AnnouncementsRoom";
 export default function Home() {
     return (
         <div className="min-h-screen bg-linear-to-br from-violet-200 via-violet-100 to-violet-300 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
@@ -46,6 +46,7 @@ export default function Home() {
                     </a>
                 </div>
             </div>
+            <AnnouncementsRoom />
         </div>
     );
 }
