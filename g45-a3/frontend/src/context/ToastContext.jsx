@@ -12,12 +12,12 @@ export function ToastProvider({ children }) {
     const [toasts, setToasts] = useState([]);
 
     // Function to show a new toast notification with a message, type, and duration
-    const show = useCallback((msg, { type = "info", duration = 4000 } = {}) => {
+    const show = useCallback((msg, { type = "info", duration = 6000 } = {}) => {
         // Generate a unique ID for the toast and add it to the list of toasts
         const id = Date.now() + Math.random();
 
-        // Add the new toast to the state, and set a timeout to remove it after the specified duration
-        setToasts((t) => [...t, { id, msg, type }]);
+        // Add the new toast to the state, include duration so the UI can animate a progress bar
+        setToasts((t) => [...t, { id, msg, type, duration }]);
 
         // Automatically remove the toast after the specified duration
         if (duration > 0) {

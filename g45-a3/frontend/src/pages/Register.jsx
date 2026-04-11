@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
+import PasswordField from "../components/general/PasswordField";
 
 export default function Register() {
     const navigate = useNavigate();
@@ -12,6 +14,7 @@ export default function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const toast = useToast();
 
     // Handle registration form submission
     async function handleSubmit(e) {
@@ -30,9 +33,12 @@ export default function Register() {
 
         try {
             await register({ name, email, password });
+            toast.show("Account created", { type: "success" });
             navigate("/");
         } catch (err) {
-            setError(err.message || "Registration failed");
+            const msg = err?.message || "Registration failed";
+            setError(msg);
+            toast.show(msg, { type: "danger" });
         }
     }
 
@@ -53,30 +59,27 @@ export default function Register() {
 
                 {error && <p className="text-red-600 mb-3">{error}</p>}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <input
-                        className="w-full rounded border px-3 py-2"
-                        placeholder="Name"
+                <form onSubmit={handleSubmit} className="space-y-4 sm:min-w-md">
+                    <PasswordField
+                        type="text"
                         value={name}
-                        name="name"
-                        autoComplete="name"
                         onChange={(e) => setName(e.target.value)}
+                        name="name"
+                        placeholder="Name"
                     />
-                    <input
-                        className="w-full rounded border px-3 py-2"
-                        placeholder="Email"
+                    <PasswordField
+                        type="email"
                         value={email}
-                        name="email"
-                        autoComplete="email"
                         onChange={(e) => setEmail(e.target.value)}
+                        name="email"
+                        placeholder="Email"
                     />
-                    <input
-                        className="w-full rounded border px-3 py-2"
-                        placeholder="Password"
+                    <PasswordField
                         type="password"
                         value={password}
-                        name="password"
                         onChange={(e) => setPassword(e.target.value)}
+                        name="password"
+                        placeholder="Password"
                     />
                     <p className="text-xs text-slate-500 mt-1">
                         Password must be at least 8 characters, include at least

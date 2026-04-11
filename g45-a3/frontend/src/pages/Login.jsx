@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
+import PasswordField from "../components/general/PasswordField";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -8,6 +10,7 @@ export default function Login() {
     const location = useLocation();
     // Get the login function from AuthContext to perform login action
     const { login } = useAuth();
+    const toast = useToast();
 
     // Local state for email, password, and error message
     const [email, setEmail] = useState("");
@@ -26,13 +29,15 @@ export default function Login() {
             await login({ email, password });
             navigate(from, { replace: true });
         } catch (err) {
-            setError(err.message || "Login failed");
+            const msg = err?.message || "Login failed";
+            setError(msg);
+            toast.show(msg, { type: "danger", duration: 6000 });
         }
     }
 
     return (
         <div className="min-h-screen flex items-center p-6 sm:p-12 fade-in">
-            <div className="mx-auto max-w-md bg-white p-6 rounded-lg shadow">
+            <div className="mx-auto max-w-lg bg-white p-6 rounded-lg shadow">
                 <h2 className="text-xl font-semibold mb-1">
                     Campus Bulletins Login
                 </h2>
@@ -49,22 +54,20 @@ export default function Login() {
 
                 {error && <p className="text-red-600 mb-3">{error}</p>}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <input
-                        className="w-full rounded border px-3 py-2"
-                        placeholder="Email"
+                <form onSubmit={handleSubmit} className="space-y-4 sm:min-w-md">
+                    <PasswordField
+                        type="email"
                         value={email}
-                        autoComplete="email"
-                        name="email"
                         onChange={(e) => setEmail(e.target.value)}
+                        name="email"
+                        placeholder="Email"
                     />
-                    <input
-                        className="w-full rounded border px-3 py-2"
-                        placeholder="Password"
+                    <PasswordField
                         type="password"
                         value={password}
-                        name="password"
                         onChange={(e) => setPassword(e.target.value)}
+                        name="password"
+                        placeholder="Password"
                     />
                     <div className="flex justify-center items-center">
                         <button className="rounded bg-violet-500 text-white px-4 py-2">

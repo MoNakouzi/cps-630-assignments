@@ -8,6 +8,7 @@ export default function ProfileMenu({ user, logout }) {
     const ref = useRef();
     const navigate = useNavigate();
     const toast = useToast();
+    const [confirmLogout, setConfirmLogout] = useState(false);
 
     useEffect(() => {
         function onDoc(e) {
@@ -15,7 +16,20 @@ export default function ProfileMenu({ user, logout }) {
             if (!ref.current.contains(e.target)) setOpen(false);
         }
         document.addEventListener("click", onDoc);
-        return () => document.removeEventListener("click", onDoc);
+
+        // Close on Escape key
+        function onKey(e) {
+            if (e.key === "Escape") {
+                setOpen(false);
+                setConfirmLogout(false);
+            }
+        }
+        document.addEventListener("keydown", onKey);
+
+        return () => {
+            document.removeEventListener("click", onDoc);
+            document.removeEventListener("keydown", onKey);
+        };
     }, []);
 
     async function handleLogout() {
@@ -44,6 +58,7 @@ export default function ProfileMenu({ user, logout }) {
             </button>
 
             <div
+                onClick={(e) => e.stopPropagation()}
                 className={`absolute right-0 mt-3 w-48 rounded-md bg-white ring-1 ring-black ring-opacity-5 shadow-lg p-3 z-40 transform origin-top-right transition-all duration-200 ${open ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}`}
             >
                 <div className="mb-2 text-xs font-medium text-slate-700">
@@ -59,15 +74,34 @@ export default function ProfileMenu({ user, logout }) {
                 >
                     Manage Account
                 </button>
-                <button
-                    onClick={() => {
-                        setOpen(false);
-                        handleLogout();
-                    }}
-                    className="w-full text-left px-2 py-2 rounded text-red-600 hover:bg-red-100 transition-colors ease-in-out duration-300"
-                >
-                    Logout
-                </button>
+                {!confirmLogout ? (
+                    <button
+                        onClick={() => {
+                            setConfirmLogout(true);
+                        }}
+                        className="w-full text-left px-2 py-2 rounded text-red-600 hover:bg-red-100 transition-colors ease-in-out duration-300"
+                    >
+                        Logout
+                    </button>
+                ) : (
+                    <div className="flex gap-2">
+                        <button
+                            onClick={async () => {
+                                setOpen(false);
+                                await handleLogout();
+                            }}
+                            className="flex-1 rounded bg-red-600 px-2 py-1 text-white"
+                        >
+                            Confirm
+                        </button>
+                        <button
+                            onClick={() => setConfirmLogout(false)}
+                            className="flex-1 rounded bg-slate-200 px-2 py-1"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

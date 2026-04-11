@@ -194,15 +194,11 @@ export default function Profile() {
     return (
         <main className="mx-auto min-h-screen max-w-3xl p-6 sm:p-12 fade-in">
             <div className="mx-auto bg-white rounded-lg p-6 shadow">
-                <h1 className="text-2xl font-bold mb-4">
-                    {user?.name + "'s" || "Your"} Profile
-                </h1>
+                <h1 className="text-2xl font-bold mb-4">{user?.name + "'s" || "Your"} Profile</h1>
 
                 <div className="mb-4">
                     <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
-                        {user?.role === "admin"
-                            ? "Admin account"
-                            : "Regular account"}
+                        {user?.role === "admin" ? "Admin account" : "Regular account"}
                     </span>
                 </div>
 
@@ -210,23 +206,21 @@ export default function Profile() {
 
                 <form onSubmit={handleProfileSave} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700">
-                            Name
-                        </label>
-                        <input
+                        <PasswordField
+                            label="Name"
+                            type="text"
                             value={form.name}
                             onChange={(e) =>
                                 setForm((s) => ({ ...s, name: e.target.value }))
                             }
-                            className="mt-1 w-full rounded border px-3 py-2"
+                            name="name"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700">
-                            Email
-                        </label>
-                        <input
+                        <PasswordField
+                            label="Email"
+                            type="email"
                             value={form.email}
                             onChange={(e) =>
                                 setForm((s) => ({
@@ -234,14 +228,14 @@ export default function Profile() {
                                     email: e.target.value,
                                 }))
                             }
-                            className="mt-1 w-full rounded border px-3 py-2"
+                            name="email"
                         />
                     </div>
 
                     <div className="flex gap-3">
                         <button
                             disabled={saving}
-                            className="rounded bg-violet-500 px-4 py-2 text-white"
+                            className="rounded bg-violet-500 px-4 py-2 text-white hover:bg-violet-600 transition-colors ease-out duration-300 hover:cursor-pointer"
                         >
                             {saving ? "Saving..." : "Save Profile"}
                         </button>
@@ -254,7 +248,7 @@ export default function Profile() {
                                 setError("");
                             }}
                             type="button"
-                            className="rounded bg-slate-200 px-4 py-2"
+                            className="rounded bg-slate-200 px-4 py-2 hover:bg-slate-300 transition-colors ease-out duration-300 hover:cursor-pointer"
                         >
                             Reset
                         </button>
@@ -310,7 +304,7 @@ export default function Profile() {
                     <div className="flex gap-3">
                         <button
                             disabled={saving}
-                            className="rounded bg-violet-500 px-4 py-2 text-white"
+                            className="rounded bg-violet-500 px-4 py-2 text-white hover:bg-violet-600 transition-colors ease-out duration-300 hover:cursor-pointer"
                         >
                             {saving ? "Working..." : "Change Password"}
                         </button>
@@ -324,12 +318,35 @@ export default function Profile() {
                                 setError("");
                             }}
                             type="button"
-                            className="rounded bg-slate-200 px-4 py-2"
+                            className="rounded bg-slate-200 px-4 py-2 hover:bg-slate-300 transition-colors ease-out duration-300 hover:cursor-pointer"
                         >
                             Reset
                         </button>
                     </div>
                 </form>
+                <hr className="my-6" />
+
+                <section className="mt-6 flex flex-col gap-4">
+                    <h2 className="text-lg font-semibold">Log Out</h2>
+                    <p className="text-sm text-slate-600 mb-3">Signing out will end your session on this device.</p>
+                    <div className="flex justify-center">
+                        <button
+                            onClick={async () => {
+                                try {
+                                    await logout();
+                                    toast.show("Logged out", { type: "success" });
+                                    navigate("/");
+                                } catch (e) {
+                                    console.error(e);
+                                    toast.show("Logout failed", { type: "danger" });
+                                }
+                            }}
+                            className="rounded max-w-sm mx-auto w-1/2 bg-red-500 px-4 py-3 text-white text-sm font-semibold hover:bg-red-600 hover:cursor-pointer transition-colors ease-out duration-300"
+                        >
+                            Log Out
+                        </button>
+                    </div>
+                </section>
             </div>
         </main>
     );

@@ -60,22 +60,23 @@ export function AuthProvider({ children }) {
 
         // If login fails, throw an error
         if (!res.ok) {
-            let errMsg;
-
-            if (res.status.toString().startsWith("4")) {
-                // Try to extract error message from response
-                try {
-                    const errorData = await res.json();
-                    errMsg = errorData.message || "Login failed... ";
-                } catch {
-                    // JSON parse errors
-                    errMsg = "Login failed";
+            // Try to extract useful error information from the response body
+            try {
+                const ct = res.headers.get("content-type") || "";
+                if (ct.includes("application/json")) {
+                    const errBody = await res.json();
+                    const errMsg = errBody.message || errBody.error || JSON.stringify(errBody);
+                    throw new Error(errMsg);
                 }
-                throw new Error(errMsg);
-            } else {
-                // Server errors
-                throw new Error("Server error logging in");
+
+                const txt = await res.text();
+                if (txt) throw new Error(txt);
+            } catch (e) {
+                // fall through to generic messages below
             }
+
+            if (res.status >= 400 && res.status < 500) throw new Error("Invalid credentials");
+            throw new Error("Server error logging in");
         }
 
         // If login succeeds, update authentication state
